@@ -1,10 +1,10 @@
 'use client';
 // src/app/leaderboard/page.tsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
 
-export default function LeaderboardPage() {
+function LeaderboardContent() {
   const { status } = useSession();
   const params = useSearchParams();
   const [leagues, setLeagues] = useState<any[]>([]);
@@ -108,5 +108,13 @@ export default function LeaderboardPage() {
         <strong>Scoring:</strong> 1 correct = 1pt · 2 correct = 3pts · 3 correct = 6pts · Season total determines champion
       </div>
     </div>
+  );
+}
+
+export default function LeaderboardPage() {
+  return (
+    <Suspense>
+      <LeaderboardContent />
+    </Suspense>
   );
 }

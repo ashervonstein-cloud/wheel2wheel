@@ -1,11 +1,11 @@
 'use client';
 // src/app/login/page.tsx
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, Suspense } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function LoginPage() {
+function LoginForm() {
   const router  = useRouter();
   const params  = useSearchParams();
   const message = params.get('message');
@@ -17,7 +17,6 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const codeRef = useRef<HTMLInputElement>(null);
 
-  // Auto-focus the code input when step advances
   useEffect(() => {
     if (step === 'code') codeRef.current?.focus();
   }, [step]);
@@ -138,5 +137,13 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }
