@@ -130,7 +130,7 @@ export async function fetchF1Calendar(): Promise<CalendarRace[]> {
     const nameMatch = summary.match(/\(([^)]+)\)/);
     const gpName   = nameMatch?.[1] ?? summary;
 
-    const season   = parseInt(gpEv['_season'] ?? '2025');
+    const season   = parseInt(gpEv['_season'] ?? '2026');
     const round    = parseInt(gpKey.replace('GP', '')) + 1;
     const hasSprint = !!(sprintEv || sqEv);
 

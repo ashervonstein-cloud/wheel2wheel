@@ -50,7 +50,7 @@ export default function AdminPage() {
 
   // Create race form
   const [raceForm, setRaceForm] = useState({
-    name: '', round: 1, season: 2025, country: '', circuit: '',
+    name: '', round: 1, season: 2026, country: '', circuit: '',
     selectionsOpenAt: '', selectionsCloseAt: '', raceDate: '',
     hasSprint: false, isDoublePoints: false,
   });

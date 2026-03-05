@@ -7,7 +7,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-const CURRENT_SEASON = 2025;
+const CURRENT_SEASON = 2026;
 
 export async function GET() {
   const session = await getServerSession(authOptions);
