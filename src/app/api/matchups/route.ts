@@ -25,5 +25,5 @@ export async function GET() {
     return NextResponse.json({ race: null, message: 'No race open for picks right now' });
   }
 
-  return NextResponse.json(race);
+  return NextResponse.json({ race });
 }
