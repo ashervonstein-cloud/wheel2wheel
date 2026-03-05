@@ -76,6 +76,21 @@ export default function AdminPage() {
     setLoading(false);
   };
 
+  const resetSeasonData = async () => {
+    if (!confirm('⚠️ This will permanently delete ALL races, matchups, picks, and results. Teams and leagues will be kept. Are you sure?')) return;
+    const res = await fetch('/api/admin/reset', { method: 'DELETE' });
+    const data = await res.json();
+    if (res.ok) {
+      setMessage(`Season data cleared — deleted ${data.deleted.races} races, ${data.deleted.picks} picks, ${data.deleted.raceResults} results.`);
+      setResultsRaceId('');
+      setWinners({});
+      fetchRaces();
+      setCalRaces([]); // force re-fetch on next sync tab open
+    } else {
+      setMessage(data.error || 'Reset failed');
+    }
+  };
+
   const updateStatus = async (raceId: string, status: string) => {
     await fetch(`/api/admin/races/${raceId}`, {
       method: 'PATCH',
@@ -203,17 +218,26 @@ export default function AdminPage() {
       )}
 
       {/* Tabs */}
-      <div className="flex gap-8" style={{ marginBottom: 24 }}>
-        {([
-          ['races',  'All Races'],
-          ['create', '+ Create Race'],
-          ['sync',   'Sync Calendar'],
-        ] as const).map(([t, label]) => (
-          <button key={t} onClick={() => { setTab(t); if (t === 'sync' && calRaces.length === 0) fetchCalendar(); }}
-            className={`btn ${tab === t ? 'btn-secondary' : 'btn-outline'}`}>
-            {label}
-          </button>
-        ))}
+      <div className="flex-between" style={{ marginBottom: 24 }}>
+        <div className="flex gap-8">
+          {([
+            ['races',  'All Races'],
+            ['create', '+ Create Race'],
+            ['sync',   'Sync Calendar'],
+          ] as const).map(([t, label]) => (
+            <button key={t} onClick={() => { setTab(t); if (t === 'sync' && calRaces.length === 0) fetchCalendar(); }}
+              className={`btn ${tab === t ? 'btn-secondary' : 'btn-outline'}`}>
+              {label}
+            </button>
+          ))}
+        </div>
+        <button
+          className="btn btn-outline btn-sm"
+          style={{ color: '#dc2626', borderColor: '#dc2626' }}
+          onClick={resetSeasonData}
+        >
+          ↺ Reset Season Data
+        </button>
       </div>
 
       {/* === Race List === */}
