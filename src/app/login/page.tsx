@@ -6,9 +6,10 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
 function LoginForm() {
-  const router  = useRouter();
-  const params  = useSearchParams();
-  const message = params.get('message');
+  const router   = useRouter();
+  const params   = useSearchParams();
+  const message  = params.get('message');
+  const redirect = params.get('redirect') || '/dashboard';
 
   const [step, setStep]       = useState<'email' | 'code'>('email');
   const [email, setEmail]     = useState('');
@@ -57,7 +58,7 @@ function LoginForm() {
       setError('Invalid or expired code. Please try again.');
       setLoading(false);
     } else {
-      router.push('/dashboard');
+      router.push(redirect);
     }
   };
 

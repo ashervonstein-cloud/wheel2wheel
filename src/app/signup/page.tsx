@@ -1,12 +1,14 @@
 'use client';
 // src/app/signup/page.tsx
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, Suspense } from 'react';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function SignupPage() {
-  const router = useRouter();
+function SignupForm() {
+  const router   = useRouter();
+  const params   = useSearchParams();
+  const redirect = params.get('redirect') || '/dashboard';
 
   const [step, setStep]       = useState<'details' | 'code'>('details');
   const [name, setName]       = useState('');
@@ -56,7 +58,7 @@ export default function SignupPage() {
       setError('Invalid or expired code. Please try again.');
       setLoading(false);
     } else {
-      router.push('/dashboard');
+      router.push(redirect);
     }
   };
 
@@ -144,5 +146,13 @@ export default function SignupPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense>
+      <SignupForm />
+    </Suspense>
   );
 }

@@ -1,10 +1,24 @@
 // src/app/api/leagues/join/route.ts
+// GET:  look up a league by invite code (public)
 // POST: add a team to a league using an invite code
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+
+export async function GET(req: NextRequest) {
+  const code = req.nextUrl.searchParams.get('code');
+  if (!code) return NextResponse.json({ error: 'Code is required' }, { status: 400 });
+
+  const league = await prisma.league.findUnique({
+    where: { inviteCode: code },
+    select: { id: true, name: true, season: true, _count: { select: { leagueTeams: true } } },
+  });
+  if (!league) return NextResponse.json({ error: 'Invalid invite code' }, { status: 404 });
+
+  return NextResponse.json(league);
+}
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
