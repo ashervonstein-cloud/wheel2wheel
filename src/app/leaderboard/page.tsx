@@ -12,6 +12,7 @@ function LeaderboardContent() {
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [leagueName, setLeagueName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (status === 'authenticated') fetchLeagues();
@@ -37,8 +38,18 @@ function LeaderboardContent() {
     setLoading(false);
   };
 
-  const rankLabel = (rank: number) => {
-    return String(rank).padStart(2, '0') + '.';
+  const rankLabel = (rank: number) => String(rank).padStart(2, '0') + '.';
+
+  const currentLeague = leagues.find(l => l.id === selectedLeague);
+  const inviteLink = currentLeague
+    ? `${window.location.origin}/leagues/join/${currentLeague.inviteCode}`
+    : null;
+
+  const copyInviteLink = () => {
+    if (!inviteLink) return;
+    navigator.clipboard.writeText(inviteLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
@@ -56,6 +67,21 @@ function LeaderboardContent() {
           ))}
         </select>
       </div>
+
+      {inviteLink && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+          <span className="text-gray" style={{ fontSize: '0.8rem', flexShrink: 0 }}>Invite link</span>
+          <code style={{
+            flex: 1, padding: '6px 10px', border: '1px solid var(--black)',
+            fontSize: '0.8rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+          }}>
+            {inviteLink}
+          </code>
+          <button className="btn btn-outline btn-sm" onClick={copyInviteLink} style={{ flexShrink: 0 }}>
+            {copied ? 'Copied!' : 'Copy'}
+          </button>
+        </div>
+      )}
 
       <div className="card" style={{ padding: 0 }}>
         {loading ? (
