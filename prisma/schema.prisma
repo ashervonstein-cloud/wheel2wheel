@@ -1,0 +1,153 @@
+// This is the database schema for Wheel2Wheel
+// Every "model" becomes a table in your database
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// A person who has an account
+model Player {
+  id        String   @id @default(cuid())
+  email     String?  @unique
+  phone     String?  @unique
+  name      String
+  isAdmin   Boolean  @default(false)
+  password  String?  // kept optional; not used in OTP flow
+  createdAt DateTime @default(now())
+
+  teams     Team[]
+  
+  @@map("players")
+}
+
+// A team belongs to a player and enters leagues
+// Teams are reset each season
+model Team {
+  id       String @id @default(cuid())
+  name     String
+  season   Int    // e.g. 2024, 2025
+  player   Player @relation(fields: [playerId], references: [id])
+  playerId String
+
+  picks        Pick[]
+  leagueTeams  LeagueTeam[]
+
+  @@map("teams")
+}
+
+// A league that teams can join and compete in
+model League {
+  id        String      @id @default(cuid())
+  name      String
+  isPublic  Boolean     @default(true)
+  season    Int
+  inviteCode String     @unique @default(cuid()) // used to generate join links
+  createdAt DateTime    @default(now())
+
+  leagueTeams LeagueTeam[]
+
+  @@map("leagues")
+}
+
+// Junction table: which teams are in which leagues
+model LeagueTeam {
+  id       String @id @default(cuid())
+  team     Team   @relation(fields: [teamId], references: [id])
+  teamId   String
+  league   League @relation(fields: [leagueId], references: [id])
+  leagueId String
+
+  @@unique([teamId, leagueId])
+  @@map("league_teams")
+}
+
+// A race event (e.g. "2024 Monaco Grand Prix")
+model Race {
+  id           String   @id @default(cuid())
+  name         String   // "Monaco Grand Prix"
+  round        Int      // round number in the season
+  season       Int
+  country      String
+  circuit      String
+  // Key dates for the race weekend
+  selectionsOpenAt  DateTime  // Wednesday noon EST
+  selectionsCloseAt DateTime  // start of Q1 (or SQ1)
+  raceDate          DateTime
+  hasSprint         Boolean   @default(false)
+  isDoublePoints    Boolean   @default(false)
+  status            RaceStatus @default(UPCOMING)
+
+  matchups  Matchup[]
+
+  @@map("races")
+}
+
+enum RaceStatus {
+  UPCOMING    // selections not yet open
+  OPEN        // accepting picks
+  CLOSED      // qualifying started, picks locked
+  COMPLETED   // results in, points awarded
+}
+
+// One of the 3 driver head-to-head matchups for a race week
+model Matchup {
+  id       String @id @default(cuid())
+  race     Race   @relation(fields: [raceId], references: [id])
+  raceId   String
+  title    String // e.g. "McLaren Driver Battle"
+  order    Int    // 1, 2, or 3 (or 4 for double points bonus)
+  isBonus  Boolean @default(false) // true for the 4th double-points question
+
+  driver1Name String
+  driver2Name String
+  // Filled in once results are official:
+  winnerId    String? // "driver1" or "driver2" or "tie"
+
+  picks Pick[]
+
+  @@map("matchups")
+}
+
+// A team's selection for one matchup
+model Pick {
+  id        String  @id @default(cuid())
+  team      Team    @relation(fields: [teamId], references: [id])
+  teamId    String
+  matchup   Matchup @relation(fields: [matchupId], references: [id])
+  matchupId String
+  selection String  // "driver1" or "driver2"
+  isCorrect Boolean? // null until results are in
+
+  @@unique([teamId, matchupId])
+  @@map("picks")
+}
+
+// One-time verification codes for passwordless login
+model VerificationCode {
+  id        String   @id @default(cuid())
+  email     String
+  codeHash  String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("verification_codes")
+}
+
+// Points earned by a team for a specific race
+model RaceResult {
+  id        String   @id @default(cuid())
+  teamId    String
+  raceId    String
+  season    Int
+  points    Int      @default(0)
+  correct   Int      @default(0) // how many matchups they got right
+  total     Int      @default(0) // how many matchups they picked
+
+  @@unique([teamId, raceId])
+  @@map("race_results")
+}

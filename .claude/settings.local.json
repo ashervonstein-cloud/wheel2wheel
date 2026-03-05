@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Claude_Preview__preview_start",
+      "WebFetch(domain:owickstrom.github.io)",
+      "WebFetch(domain:files-f1.motorsportcalendars.com)",
+      "WebFetch(domain:www.formula1.com)",
+      "Bash(npm install resend)",
+      "Bash(npm install resend --legacy-peer-deps)",
+      "Bash(npx prisma migrate dev --name otp-auth)",
+      "Bash(npx prisma migrate dev --name otp-auth --create-only)",
+      "Bash(npx prisma migrate deploy)",
+      "Bash(npx prisma db push)"
+    ]
+  }
+}
