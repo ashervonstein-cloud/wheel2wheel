@@ -173,8 +173,8 @@ input:focus, select:focus {
   border-radius: 0;
 }
 .driver-option:last-child { border-right: none; border-left: 1px solid #ddd; }
-.driver-option:hover:not(:disabled) { background: var(--light); }
-.driver-option.selected { background: var(--black); color: var(--white); }
+.driver-option:hover:not(:disabled) { background: var(--red); color: var(--white); }
+.driver-option.selected { background: var(--red); color: var(--white); }
 .driver-option.correct { background: var(--white); color: var(--black); font-weight: 800; }
 .driver-option.incorrect { color: #aaa; text-decoration: line-through; background: #fafafa; }
 .vs-divider {
