@@ -67,10 +67,15 @@ export default function DashboardPage() {
       setMessage('Select a team and enter the invite code');
       return;
     }
+    // Accept full invite URLs as well as bare codes
+    const rawCode = inviteCode.trim();
+    const code = rawCode.includes('/leagues/join/')
+      ? rawCode.split('/leagues/join/').pop()!.trim()
+      : rawCode;
     const res = await fetch('/api/leagues/join', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ inviteCode, teamId: selectedTeamForJoin }),
+      body: JSON.stringify({ inviteCode: code, teamId: selectedTeamForJoin }),
     });
     const data = await res.json();
     setMessage(res.ok ? `Joined ${data.league.name}!` : data.error);
