@@ -17,6 +17,8 @@ export default function DashboardPage() {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [copiedLeagueId, setCopiedLeagueId] = useState('');
+  const [editingTeamId, setEditingTeamId] = useState('');
+  const [editingTeamName, setEditingTeamName] = useState('');
 
   useEffect(() => {
     if (status === 'unauthenticated') router.push('/login');
@@ -82,6 +84,33 @@ export default function DashboardPage() {
     if (res.ok) { setInviteCode(''); fetchData(); }
   };
 
+  const startEditTeam = (team: any) => {
+    setEditingTeamId(team.id);
+    setEditingTeamName(team.name);
+  };
+
+  const cancelEditTeam = () => {
+    setEditingTeamId('');
+    setEditingTeamName('');
+  };
+
+  const saveTeamName = async (teamId: string) => {
+    if (!editingTeamName.trim()) return;
+    const res = await fetch(`/api/teams/${teamId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: editingTeamName }),
+    });
+    if (res.ok) {
+      setMessage('Team renamed!');
+      cancelEditTeam();
+      fetchData();
+    } else {
+      const data = await res.json();
+      setMessage(data.error || 'Failed to rename team');
+    }
+  };
+
   const copyInviteLink = (league: any) => {
     const link = `${window.location.origin}/leagues/join/${league.inviteCode}`;
     navigator.clipboard.writeText(link);
@@ -122,11 +151,37 @@ export default function DashboardPage() {
           {teams.length === 0 && <p className="text-gray text-sm">No teams yet. Create one below.</p>}
           {teams.map((team: any) => (
             <div key={team.id} style={{ borderBottom: '1px solid #000', padding: '10px 0' }}>
-              <div className="flex-between">
-                <span style={{ fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{team.name}</span>
-                <span className="badge">{team.leagueTeams?.length ?? 0} league(s)</span>
-              </div>
-              {team.leagueTeams?.map((lt: any) => (
+              {editingTeamId === team.id ? (
+                <div className="flex gap-8" style={{ alignItems: 'center' }}>
+                  <input
+                    value={editingTeamName}
+                    onChange={e => setEditingTeamName(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') saveTeamName(team.id);
+                      if (e.key === 'Escape') cancelEditTeam();
+                    }}
+                    autoFocus
+                    style={{ flex: 1, fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}
+                  />
+                  <button className="btn btn-sm btn-primary" onClick={() => saveTeamName(team.id)}>Save</button>
+                  <button className="btn btn-sm btn-outline" onClick={cancelEditTeam}>Cancel</button>
+                </div>
+              ) : (
+                <div className="flex-between">
+                  <span style={{ fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{team.name}</span>
+                  <div className="flex gap-8" style={{ alignItems: 'center' }}>
+                    <button
+                      className="btn btn-outline btn-sm"
+                      onClick={() => startEditTeam(team)}
+                      style={{ fontSize: '0.7rem', padding: '2px 8px' }}
+                    >
+                      Rename
+                    </button>
+                    <span className="badge">{team.leagueTeams?.length ?? 0} league(s)</span>
+                  </div>
+                </div>
+              )}
+              {editingTeamId !== team.id && team.leagueTeams?.map((lt: any) => (
                 <Link key={lt.id} href={`/leaderboard?leagueId=${lt.leagueId}`}
                   className="text-sm" style={{ color: 'var(--red)', display: 'block', marginTop: 4, textDecoration: 'none', fontWeight: 600 }}>
                   {lt.league.name} /
