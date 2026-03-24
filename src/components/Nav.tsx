@@ -13,7 +13,7 @@ export function Nav() {
       {session && (
         <>
           <Link href="/dashboard">Dashboard</Link>
-          <Link href="/picks">Make Picks</Link>
+          <Link href="/picks">Picks</Link>
           <Link href="/leaderboard">Leaderboard</Link>
               {isAdmin && <Link href="/admin" style={{ color: 'var(--red)' }}>Admin</Link>}
         </>
