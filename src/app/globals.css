@@ -186,6 +186,68 @@ input:focus, select:focus {
   white-space: nowrap;
 }
 
+/* ── Pick Distribution Visualizer ─────────────── */
+.driver-viz {
+  position: relative;
+  overflow: hidden;
+  padding: 22px 16px;
+  text-align: center;
+  border-right: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 88px;
+}
+.driver-viz:last-child { border-right: none; border-left: 1px solid #ddd; }
+
+.driver-viz-fill {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: #eeeeee;
+  transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.driver-viz-fill-left  { right: 0; } /* anchored to center, grows left */
+.driver-viz-fill-right { left: 0; }  /* anchored to center, grows right */
+
+.driver-viz.driver-viz-picked .driver-viz-fill {
+  background: rgba(255, 30, 0, 0.1);
+}
+
+.driver-viz-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.driver-viz-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.driver-viz-pct {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--red);
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+.driver-viz-tag {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--gray);
+  border: 1px solid currentColor;
+  padding: 1px 6px;
+  margin-top: 2px;
+}
+.driver-viz-tag.correct   { color: var(--black); border-color: var(--black); }
+.driver-viz-tag.incorrect { color: #bbb; border-color: #bbb; text-decoration: line-through; }
+
 /* ── Tables ────────────────────────────────────── */
 table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
 th, td { text-align: left; padding: 10px 16px; border-bottom: 1px solid #e0e0e0; }
@@ -273,6 +335,84 @@ tr:hover td { background: var(--light); }
   font-size: 0.75rem;
   letter-spacing: 2px;
   text-transform: uppercase;
+}
+
+/* ── Previous Picks Accordion ──────────────────── */
+.history-section {
+  margin-top: 36px;
+  border-top: 2px solid var(--black);
+  padding-top: 20px;
+}
+.history-section-title {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--gray);
+  margin-bottom: 8px;
+}
+.accordion-race {
+  border: 1px solid var(--black);
+  margin-bottom: -1px; /* collapse adjacent borders */
+}
+.accordion-race:last-child { margin-bottom: 0; }
+.accordion-race-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 11px 14px;
+  cursor: pointer;
+  background: var(--white);
+  border: none;
+  text-align: left;
+  border-radius: 0;
+  transition: background 0.1s;
+  color: var(--black);
+  letter-spacing: normal;
+  text-transform: none;
+  font-weight: normal;
+}
+.accordion-race-header:hover { background: var(--light); color: var(--black); }
+.accordion-chevron {
+  font-size: 0.7rem;
+  color: var(--gray);
+  flex-shrink: 0;
+}
+.accordion-race-round {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--gray);
+}
+.accordion-race-name {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+.accordion-race-score {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--gray);
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+}
+.accordion-race-score .pts {
+  font-weight: 800;
+  color: var(--black);
+}
+.accordion-race-body {
+  border-top: 1px solid var(--black);
+  padding: 12px;
+  background: #fafafa;
+}
+.accordion-race-body .matchup-card {
+  margin-bottom: 6px;
+}
+.accordion-race-body .matchup-card:last-child {
+  margin-bottom: 0;
 }
 
 /* ── Horizontal rule ───────────────────────────── */
