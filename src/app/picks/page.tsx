@@ -128,13 +128,7 @@ export default function PicksPage() {
 
     const getTag = (driverId: 'driver1' | 'driver2') => {
       if (!pickSelection || pickSelection !== driverId) return null;
-      if (!isCompletedCtx) return <span className="driver-viz-tag">Your Pick</span>;
-      const correct = winner === driverId;
-      return (
-        <span className={`driver-viz-tag ${correct ? 'correct' : 'incorrect'}`}>
-          {correct ? '✓ Correct' : '✗ Wrong'}
-        </span>
-      );
+      return <span className="driver-viz-tag">Your Pick</span>;
     };
 
     return (
@@ -142,6 +136,7 @@ export default function PicksPage() {
         <div className={`driver-viz${pickSelection === 'driver1' ? ' driver-viz-picked' : ''}`}>
           <div className="driver-viz-fill driver-viz-fill-left" style={{ width: isAnimated ? `${d1Pct}%` : '0%' }} />
           <div className="driver-viz-content">
+            {getTag('driver1')}
             <span
               className="driver-viz-name"
               style={isCompletedCtx && winner === 'driver1' ? { color: '#16a34a' } : undefined}
@@ -150,13 +145,13 @@ export default function PicksPage() {
               {matchup.driver1Name}
             </span>
             <span className="driver-viz-pct">{d1Pct}%</span>
-            {getTag('driver1')}
           </div>
         </div>
         <span className="vs-divider">VS</span>
         <div className={`driver-viz${pickSelection === 'driver2' ? ' driver-viz-picked' : ''}`}>
           <div className="driver-viz-fill driver-viz-fill-right" style={{ width: isAnimated ? `${d2Pct}%` : '0%' }} />
           <div className="driver-viz-content">
+            {getTag('driver2')}
             <span
               className="driver-viz-name"
               style={isCompletedCtx && winner === 'driver2' ? { color: '#16a34a' } : undefined}
@@ -165,7 +160,6 @@ export default function PicksPage() {
               {matchup.driver2Name}
             </span>
             <span className="driver-viz-pct">{d2Pct}%</span>
-            {getTag('driver2')}
           </div>
         </div>
       </div>
