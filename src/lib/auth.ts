@@ -9,7 +9,7 @@ import { prisma } from './prisma';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
-  session: { strategy: 'jwt', maxAge: 30 * 24 * 60 * 60 }, // 30 days
+  session: { strategy: 'jwt', maxAge: 180 * 24 * 60 * 60 }, // 180 days (~6 months)
   pages: {
     signIn: '/login',
   },
