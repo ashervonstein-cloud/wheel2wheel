@@ -142,9 +142,12 @@ export default function PicksPage() {
         <div className={`driver-viz${pickSelection === 'driver1' ? ' driver-viz-picked' : ''}`}>
           <div className="driver-viz-fill driver-viz-fill-left" style={{ width: isAnimated ? `${d1Pct}%` : '0%' }} />
           <div className="driver-viz-content">
-            <span className="driver-viz-name">
+            <span
+              className="driver-viz-name"
+              style={isCompletedCtx && winner === 'driver1' ? { color: '#16a34a' } : undefined}
+            >
+              {isCompletedCtx && winner === 'driver1' && '✅ '}
               {matchup.driver1Name}
-              {isCompletedCtx && winner === 'driver1' && ' ✓'}
             </span>
             <span className="driver-viz-pct">{d1Pct}%</span>
             {getTag('driver1')}
@@ -154,9 +157,12 @@ export default function PicksPage() {
         <div className={`driver-viz${pickSelection === 'driver2' ? ' driver-viz-picked' : ''}`}>
           <div className="driver-viz-fill driver-viz-fill-right" style={{ width: isAnimated ? `${d2Pct}%` : '0%' }} />
           <div className="driver-viz-content">
-            <span className="driver-viz-name">
+            <span
+              className="driver-viz-name"
+              style={isCompletedCtx && winner === 'driver2' ? { color: '#16a34a' } : undefined}
+            >
+              {isCompletedCtx && winner === 'driver2' && '✅ '}
               {matchup.driver2Name}
-              {isCompletedCtx && winner === 'driver2' && ' ✓'}
             </span>
             <span className="driver-viz-pct">{d2Pct}%</span>
             {getTag('driver2')}
