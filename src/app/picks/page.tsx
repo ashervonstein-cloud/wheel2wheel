@@ -127,8 +127,12 @@ export default function PicksPage() {
     const d2Pct = counts?.driver2Pct ?? 50;
 
     const getTag = (driverId: 'driver1' | 'driver2') => {
-      if (!pickSelection || pickSelection !== driverId) return null;
-      return <span className="driver-viz-tag">Your Pick</span>;
+      const isPicked = pickSelection === driverId;
+      return (
+        <span className="driver-viz-tag" style={{ visibility: isPicked ? 'visible' : 'hidden' }}>
+          Your Pick
+        </span>
+      );
     };
 
     return (
