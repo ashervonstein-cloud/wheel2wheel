@@ -182,9 +182,11 @@ export default function PicksPage() {
             </p>
           )}
         </div>
-        {race?.status === 'OPEN' && (
+        {teams.length > 1 && (
           <div>
-            <label className="text-sm text-gray" style={{ display: 'block', marginBottom: 4 }}>Picking for team:</label>
+            <label className="text-sm text-gray" style={{ display: 'block', marginBottom: 4 }}>
+              {race?.status === 'OPEN' ? 'Picking for team:' : 'Viewing as team:'}
+            </label>
             <select value={selectedTeam} onChange={e => setSelectedTeam(e.target.value)} style={{ width: 'auto' }}>
               {teams.map((t: any) => <option key={t.id} value={t.id}>{t.name}</option>)}
             </select>
