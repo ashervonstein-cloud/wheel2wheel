@@ -280,12 +280,26 @@ export default function AdminPage() {
                     Enter Results
                   </button>
                 )}
+                {race.status === 'COMPLETED' && (
+                  <button className="btn btn-sm btn-outline"
+                    onClick={() => {
+                      setResultsRaceId(race.id);
+                      // Pre-fill with current winners
+                      const current: Record<string, string> = {};
+                      race.matchups.forEach((m: any) => { if (m.winnerId) current[m.id] = m.winnerId; });
+                      setWinners(current);
+                    }}>
+                    Edit Results
+                  </button>
+                )}
               </div>
 
               {/* Results entry panel */}
-              {resultsRaceId === race.id && race.status === 'CLOSED' && (
+              {resultsRaceId === race.id && (race.status === 'CLOSED' || race.status === 'COMPLETED') && (
                 <div style={{ marginTop: 16, borderTop: '1px solid #000', paddingTop: 16 }}>
-                  <p style={{ fontWeight: 700, marginBottom: 12 }}>Enter race results — who finished higher?</p>
+                  <p style={{ fontWeight: 700, marginBottom: 12 }}>
+                    {race.status === 'COMPLETED' ? 'Edit race results — points will be recalculated' : 'Enter race results — who finished higher?'}
+                  </p>
                   {race.matchups.map((m: any) => (
                     <div key={m.id} className="form-group">
                       <label>{m.title}</label>

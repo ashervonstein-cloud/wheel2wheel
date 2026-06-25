@@ -40,8 +40,13 @@ export async function PATCH(
     return NextResponse.json(updated);
   }
 
-  // --- Processing final results ---
+  // --- Processing results (new submission OR editing completed race) ---
   if (results) {
+    // Allow results on CLOSED or COMPLETED races (COMPLETED = editing previous results)
+    if (race.status !== 'CLOSED' && race.status !== 'COMPLETED') {
+      return NextResponse.json({ error: 'Race must be CLOSED or COMPLETED to enter results' }, { status: 400 });
+    }
+
     // 1. Save the winner for each matchup
     await Promise.all(
       results.map((r: { matchupId: string; winnerId: string }) =>

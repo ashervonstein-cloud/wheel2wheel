@@ -11,6 +11,8 @@ function LeaderboardContent() {
   const [selectedLeague, setSelectedLeague] = useState(params.get('leagueId') || '');
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [leagueName, setLeagueName] = useState('');
+  const [completedRaces, setCompletedRaces] = useState<{ round: number; name: string }[]>([]);
+  const [selectedRound, setSelectedRound] = useState(''); // '' = all rounds
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -19,8 +21,8 @@ function LeaderboardContent() {
   }, [status]);
 
   useEffect(() => {
-    if (selectedLeague) fetchLeaderboard(selectedLeague);
-  }, [selectedLeague]);
+    if (selectedLeague) fetchLeaderboard(selectedLeague, selectedRound);
+  }, [selectedLeague, selectedRound]);
 
   const fetchLeagues = async () => {
     const res = await fetch('/api/leagues');
@@ -29,12 +31,16 @@ function LeaderboardContent() {
     if (!selectedLeague && data.length > 0) setSelectedLeague(data[0].id);
   };
 
-  const fetchLeaderboard = async (leagueId: string) => {
+  const fetchLeaderboard = async (leagueId: string, throughRound: string) => {
     setLoading(true);
-    const res = await fetch(`/api/leagues/${leagueId}/leaderboard`);
+    const url = throughRound
+      ? `/api/leagues/${leagueId}/leaderboard?throughRound=${throughRound}`
+      : `/api/leagues/${leagueId}/leaderboard`;
+    const res = await fetch(url);
     const data = await res.json();
     setLeaderboard(data.leaderboard ?? []);
     setLeagueName(data.league?.name ?? '');
+    setCompletedRaces(data.completedRaces ?? []);
     setLoading(false);
   };
 
@@ -57,15 +63,24 @@ function LeaderboardContent() {
       <div className="page-header flex-between">
         <div>
           <h1>Leaderboard</h1>
-          <p>{leagueName || 'Select a league to view standings'}</p>
+          <p>{leagueName || 'Select a league to view standings'}{selectedRound ? ` — after Round ${selectedRound}` : ''}</p>
         </div>
-        <select value={selectedLeague} onChange={e => setSelectedLeague(e.target.value)}
-          style={{ width: 'auto' }}>
-          <option value="">Select a league...</option>
-          {leagues.map((l: any) => (
-            <option key={l.id} value={l.id}>{l.name}</option>
-          ))}
-        </select>
+        <div className="flex gap-8">
+          <select value={selectedRound} onChange={e => setSelectedRound(e.target.value)}
+            style={{ width: 'auto' }}>
+            <option value="">All Rounds</option>
+            {completedRaces.map((r) => (
+              <option key={r.round} value={r.round}>After R{r.round} — {r.name}</option>
+            ))}
+          </select>
+          <select value={selectedLeague} onChange={e => { setSelectedLeague(e.target.value); setSelectedRound(''); }}
+            style={{ width: 'auto' }}>
+            <option value="">Select a league...</option>
+            {leagues.map((l: any) => (
+              <option key={l.id} value={l.id}>{l.name}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {inviteLink && (
