@@ -12,6 +12,7 @@ function LeaderboardContent() {
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [leagueName, setLeagueName] = useState('');
   const [completedRaces, setCompletedRaces] = useState<{ round: number; name: string }[]>([]);
+  const [lastRound, setLastRound] = useState<{ round: number; name: string } | null>(null);
   const [selectedRound, setSelectedRound] = useState(''); // '' = all rounds
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -41,6 +42,7 @@ function LeaderboardContent() {
     setLeaderboard(data.leaderboard ?? []);
     setLeagueName(data.league?.name ?? '');
     setCompletedRaces(data.completedRaces ?? []);
+    setLastRound(data.lastRound ?? null);
     setLoading(false);
   };
 
@@ -113,6 +115,7 @@ function LeaderboardContent() {
                 <th>Team</th>
                 <th>Player</th>
                 <th>Points</th>
+                {lastRound && <th>R{lastRound.round}</th>}
                 <th>Correct</th>
                 <th>Picks Made</th>
                 <th>Accuracy</th>
@@ -133,6 +136,11 @@ function LeaderboardContent() {
                       {entry.points}
                     </span>
                   </td>
+                  {lastRound && (
+                    <td className="text-gray">
+                      {entry.lastRoundPoints > 0 ? `+${entry.lastRoundPoints}` : '0'}
+                    </td>
+                  )}
                   <td>{entry.correct}</td>
                   <td>{entry.picks}</td>
                   <td className="text-gray">

@@ -60,6 +60,27 @@ export async function GET(
 
   const pointsMap = new Map(results.map((r) => [r.teamId, r._sum]));
 
+  // Find the latest completed round (within the filter if set)
+  const latestRace = await prisma.race.findFirst({
+    where: {
+      season: CURRENT_SEASON,
+      status: 'COMPLETED',
+      ...(throughRound ? { round: { lte: parseInt(throughRound, 10) } } : {}),
+    },
+    orderBy: { round: 'desc' },
+    select: { id: true, round: true, name: true },
+  });
+
+  // Get per-team points for that latest race
+  let lastRoundMap = new Map<string, number>();
+  if (latestRace) {
+    const lastRoundResults = await prisma.raceResult.findMany({
+      where: { raceId: latestRace.id, teamId: { in: teamIds } },
+      select: { teamId: true, points: true },
+    });
+    lastRoundMap = new Map(lastRoundResults.map((r) => [r.teamId, r.points]));
+  }
+
   // Build the leaderboard
   const leaderboard = league.leagueTeams
     .map((lt) => {
@@ -71,6 +92,7 @@ export async function GET(
         points: pts?.points ?? 0,
         correct: pts?.correct ?? 0,
         picks: pts?.total ?? 0,
+        lastRoundPoints: lastRoundMap.get(lt.teamId) ?? 0,
       };
     })
     .sort((a, b) => b.points - a.points)
@@ -83,5 +105,10 @@ export async function GET(
     orderBy: { round: 'asc' },
   });
 
-  return NextResponse.json({ league, leaderboard, completedRaces });
+  return NextResponse.json({
+    league,
+    leaderboard,
+    completedRaces,
+    lastRound: latestRace ? { round: latestRace.round, name: latestRace.name } : null,
+  });
 }
