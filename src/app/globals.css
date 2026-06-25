@@ -446,6 +446,12 @@ tr:hover td { background: var(--light); }
 hr { border: none; border-top: 1px solid var(--black); margin: 16px 0; }
 
 /* ── Mobile Navigation ────────────────────────── */
+.nav-desktop {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
 .nav-hamburger {
   display: none;
   background: none;
