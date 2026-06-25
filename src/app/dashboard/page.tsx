@@ -134,7 +134,7 @@ export default function DashboardPage() {
           <h1>Dashboard</h1>
           <p>Welcome back, {session?.user?.name}</p>
         </div>
-        <Link href="/picks" className="btn btn-primary">Make This Week's Picks</Link>
+        <Link href="/picks" className="btn btn-primary" style={{ whiteSpace: 'nowrap' }}>Make This Week&apos;s Picks</Link>
       </div>
 
       {message && (
@@ -143,7 +143,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+      <div className="dashboard-grid">
 
         {/* Teams */}
         <div className="card">

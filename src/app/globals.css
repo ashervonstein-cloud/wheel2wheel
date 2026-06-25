@@ -415,5 +415,236 @@ tr:hover td { background: var(--light); }
   margin-bottom: 0;
 }
 
+/* ── Home page ────────────────────────────────── */
+.home-page { padding-top: 40px; }
+.home-hero { border-bottom: 2px solid #000; padding-bottom: 32px; margin-bottom: 48px; }
+.home-title { font-size: 3.2rem; font-weight: 800; letter-spacing: -1px; line-height: 1; margin-bottom: 16px; }
+.home-subtitle { font-size: 0.95rem; color: var(--gray); margin-bottom: 28px; max-width: 520px; line-height: 1.7; }
+.home-cta { display: flex; gap: 10px; }
+.home-features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+.home-feature { padding: 24px 28px; }
+.home-feature[data-index="1"],
+.home-feature[data-index="2"] { border-left: 1px solid #000; }
+.home-scoring { border-top: 1px solid #000; padding: 16px 0; display: flex; gap: 32px; }
+
+/* ── Leaderboard filters ──────────────────────── */
+.leaderboard-filters { display: flex; gap: 8px; }
+.leaderboard-filters select { width: auto; }
+
+/* ── Dashboard grid ───────────────────────────── */
+.dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+/* ── Admin tabs ───────────────────────────────── */
+.admin-tabs { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; gap: 12px; }
+.admin-tabs-row { display: flex; gap: 8px; }
+
+/* ── Admin create race grid ───────────────────── */
+.admin-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.admin-matchup-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
 /* ── Horizontal rule ───────────────────────────── */
 hr { border: none; border-top: 1px solid var(--black); margin: 16px 0; }
+
+/* ── Mobile Navigation ────────────────────────── */
+.nav-hamburger {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--white);
+  font-size: 1.3rem;
+  padding: 4px 8px;
+  cursor: pointer;
+  line-height: 1;
+}
+.nav-hamburger:hover { background: none; color: var(--white); }
+
+.nav-mobile-menu {
+  display: none;
+}
+
+.nav-mobile-divider {
+  border-top: 1px solid #333;
+  margin: 4px 0;
+}
+.nav-mobile-user {
+  font-size: 0.72rem;
+  color: #555;
+  padding: 8px 0;
+}
+
+/* ══════════════════════════════════════════════════
+   MOBILE RESPONSIVE — max-width: 768px
+   ══════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* ── Nav: hamburger + dropdown ── */
+  .nav-desktop { display: none; }
+  .nav-hamburger { display: block; }
+  nav { padding: 0 16px; position: relative; }
+
+  .nav-mobile-menu {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 52px;
+    left: 0;
+    right: 0;
+    background: var(--black);
+    border-top: 1px solid #333;
+    padding: 12px 16px;
+    z-index: 100;
+    gap: 2px;
+  }
+  .nav-mobile-menu a,
+  .nav-mobile-menu button {
+    font-size: 0.78rem;
+    padding: 10px 0;
+    text-align: left;
+    width: 100%;
+  }
+  .nav-mobile-menu a {
+    color: #999;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 500;
+  }
+  .nav-mobile-menu a:hover { color: var(--white); }
+
+  /* ── Main content padding ── */
+  main { padding: 20px 16px !important; }
+
+  /* ── Page headers: stack on mobile ── */
+  .page-header.flex-between {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .page-header.flex-between > div:last-child,
+  .page-header.flex-between > select,
+  .page-header.flex-between > .flex {
+    width: 100%;
+  }
+  .page-header.flex-between .flex.gap-8 {
+    flex-direction: column;
+  }
+  .page-header.flex-between select {
+    width: 100% !important;
+  }
+
+  /* ── Cards ── */
+  .card { padding: 16px; }
+
+  /* ── Buttons ── */
+  .btn-sm { padding: 6px 12px; }
+
+  /* ── Flex-between: stack when needed ── */
+  .flex-between { flex-wrap: wrap; gap: 8px; }
+
+  /* ── Tables: horizontal scroll ── */
+  .card:has(table) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  table { min-width: 560px; }
+  th, td { padding: 8px 10px; font-size: 0.78rem; }
+
+  /* ── Leaderboard filters: stack ── */
+  .leaderboard-filters {
+    flex-direction: column;
+    width: 100%;
+  }
+  .leaderboard-filters select {
+    width: 100%;
+  }
+
+  /* ── Dashboard grid: single column ── */
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* ── Home hero ── */
+  .home-page { padding-top: 24px; }
+  .home-hero { margin-bottom: 32px; padding-bottom: 24px; }
+  .home-title { font-size: 2.2rem; }
+  .home-subtitle { font-size: 0.85rem; }
+  .home-cta { flex-direction: column; }
+  .home-cta .btn { text-align: center; }
+
+  /* ── Home features: stack vertically ── */
+  .home-features {
+    grid-template-columns: 1fr;
+  }
+  .home-feature {
+    padding: 16px 0 !important;
+    border-left: none !important;
+    border-bottom: 1px solid var(--black);
+  }
+  .home-feature:last-child {
+    border-bottom: none;
+  }
+
+  /* ── Scoring key: wrap on mobile ── */
+  .home-scoring {
+    flex-wrap: wrap;
+    gap: 8px 16px;
+  }
+
+  /* ── Matchup cards ── */
+  .driver-option {
+    padding: 16px 8px;
+    font-size: 0.75rem;
+    letter-spacing: 0;
+  }
+  .driver-viz {
+    padding: 16px 8px;
+    min-height: 72px;
+  }
+  .driver-viz-name {
+    font-size: 0.72rem;
+  }
+  .driver-viz-pct {
+    font-size: 1.1rem;
+  }
+  .vs-divider {
+    padding: 0 6px;
+    font-size: 0.55rem;
+  }
+
+  /* ── Accordion ── */
+  .accordion-race-header {
+    padding: 10px 12px;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .accordion-race-header > div:first-child {
+    flex-wrap: wrap;
+  }
+  .accordion-race-score {
+    font-size: 0.62rem;
+    width: 100%;
+    padding-left: 20px;
+  }
+
+  /* ── Admin tabs ── */
+  .admin-tabs {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .admin-tabs-row {
+    flex-wrap: wrap;
+  }
+
+  /* ── Admin: create race grid ── */
+  .admin-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* ── Admin: matchup form grid ── */
+  .admin-matchup-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* ── Alerts ── */
+  .alert { font-size: 0.75rem; padding: 10px 12px; }
+}

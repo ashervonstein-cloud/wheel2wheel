@@ -218,12 +218,12 @@ export default function AdminPage() {
       )}
 
       {/* Tabs */}
-      <div className="flex-between" style={{ marginBottom: 24 }}>
-        <div className="flex gap-8">
+      <div className="admin-tabs">
+        <div className="admin-tabs-row">
           {([
             ['races',  'All Races'],
-            ['create', '+ Create Race'],
-            ['sync',   'Sync Calendar'],
+            ['create', '+ Create'],
+            ['sync',   'Sync Cal'],
           ] as const).map(([t, label]) => (
             <button key={t} onClick={() => { setTab(t); if (t === 'sync' && calRaces.length === 0) fetchCalendar(); }}
               className={`btn ${tab === t ? 'btn-secondary' : 'btn-outline'}`}>
@@ -410,7 +410,7 @@ export default function AdminPage() {
       {tab === 'create' && (
         <div className="card">
           <h2>Create New Race</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <div className="admin-form-grid">
             <div className="form-group">
               <label>Race Name</label>
               <input value={raceForm.name} onChange={e => setRaceForm(f => ({ ...f, name: e.target.value }))}
@@ -466,7 +466,7 @@ export default function AdminPage() {
                 <p className="text-sm" style={{ fontWeight: 700, marginBottom: 12, textTransform: 'uppercase', letterSpacing: '1px', color: m.isBonus ? 'var(--red)' : 'inherit' }}>
                   {m.isBonus ? '[Bonus]' : `Matchup ${m.order}`}
                 </p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+                <div className="admin-matchup-grid">
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label>Title</label>
                     <input value={m.title} onChange={e => updateMatchup(i, 'title', e.target.value)}

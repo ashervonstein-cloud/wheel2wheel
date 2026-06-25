@@ -21,17 +21,17 @@ export default function Home() {
   ];
 
   return (
-    <div style={{ paddingTop: 40 }}>
+    <div className="home-page">
       {/* Hero */}
-      <div style={{ borderBottom: '2px solid #000', paddingBottom: 32, marginBottom: 48 }}>
-        <h1 style={{ fontSize: '3.2rem', fontWeight: 800, letterSpacing: '-1px', lineHeight: 1, marginBottom: 16 }}>
+      <div className="home-hero">
+        <h1 className="home-title">
           WHEEL<span style={{ color: 'var(--red)' }}>2</span>WHEEL
         </h1>
-        <p style={{ fontSize: '0.95rem', color: 'var(--gray)', marginBottom: 28, maxWidth: 520, lineHeight: 1.7 }}>
+        <p className="home-subtitle">
           Pick the winner from 3 F1 driver head-to-head matchups each race week.
           Score points, join leagues, win the championship.
         </p>
-        <div style={{ display: 'flex', gap: 10 }}>
+        <div className="home-cta">
           <Link href="/signup" className="btn btn-primary" style={{ padding: '10px 28px', fontSize: '0.8rem' }}>
             Get Started
           </Link>
@@ -42,15 +42,9 @@ export default function Home() {
       </div>
 
       {/* Features */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 0 }}>
+      <div className="home-features">
         {features.map(({ num, title, desc }, i) => (
-          <div
-            key={num}
-            style={{
-              padding: '24px 28px',
-              borderLeft: i > 0 ? '1px solid #000' : 'none',
-            }}
-          >
+          <div key={num} className="home-feature" data-index={i}>
             <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--red)', letterSpacing: '2px', marginBottom: 10 }}>
               [{num}]
             </div>
@@ -63,7 +57,7 @@ export default function Home() {
       </div>
 
       {/* Scoring key */}
-      <div style={{ borderTop: '1px solid #000', marginTop: 0, padding: '16px 0', display: 'flex', gap: 32 }}>
+      <div className="home-scoring">
         {['1 correct = 1 pt', '2 correct = 3 pts', '3 correct = 6 pts', 'all 4 correct (double week) = 2×'].map(s => (
           <span key={s} style={{ fontSize: '0.72rem', color: 'var(--gray)', letterSpacing: '0.5px' }}>{s}</span>
         ))}

@@ -67,16 +67,14 @@ function LeaderboardContent() {
           <h1>Leaderboard</h1>
           <p>{leagueName || 'Select a league to view standings'}{selectedRound ? ` — after Round ${selectedRound}` : ''}</p>
         </div>
-        <div className="flex gap-8">
-          <select value={selectedRound} onChange={e => setSelectedRound(e.target.value)}
-            style={{ width: 'auto' }}>
+        <div className="leaderboard-filters">
+          <select value={selectedRound} onChange={e => setSelectedRound(e.target.value)}>
             <option value="">All Rounds</option>
             {completedRaces.map((r) => (
               <option key={r.round} value={r.round}>After R{r.round} — {r.name}</option>
             ))}
           </select>
-          <select value={selectedLeague} onChange={e => { setSelectedLeague(e.target.value); setSelectedRound(''); }}
-            style={{ width: 'auto' }}>
+          <select value={selectedLeague} onChange={e => { setSelectedLeague(e.target.value); setSelectedRound(''); }}>
             <option value="">Select a league...</option>
             {leagues.map((l: any) => (
               <option key={l.id} value={l.id}>{l.name}</option>
