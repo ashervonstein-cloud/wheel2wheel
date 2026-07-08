@@ -66,30 +66,40 @@ function LeaderboardContent() {
     setGenerating(true);
 
     const dpr = 2; // retina sharpness
-    const font = '14px "JetBrains Mono", monospace';
-    const fontBold = 'bold 14px "JetBrains Mono", monospace';
-    const fontSmall = '11px "JetBrains Mono", monospace';
-    const fontTitle = 'bold 20px "JetBrains Mono", monospace';
-    const fontSubtitle = '12px "JetBrains Mono", monospace';
+    const fontSize = 12;
+    const font = `${fontSize}px "JetBrains Mono", monospace`;
+    const fontBold = `bold ${fontSize}px "JetBrains Mono", monospace`;
+    const fontSmall = '10px "JetBrains Mono", monospace';
+    const fontTitle = 'bold 18px "JetBrains Mono", monospace';
+    const fontSubtitle = '11px "JetBrains Mono", monospace';
+
+    // Measure the longest team name to set dynamic column width
+    const measureCanvas = document.createElement('canvas');
+    const measureCtx = measureCanvas.getContext('2d')!;
+    measureCtx.font = fontBold;
+    const maxTeamW = Math.max(...leaderboard.map((e: any) => measureCtx.measureText(e.teamName).width));
+    const maxPlayerW = Math.max(...leaderboard.map((e: any) => measureCtx.measureText(e.playerName).width));
+    const teamColW = Math.max(120, Math.ceil(maxTeamW) + 24);
+    const playerColW = Math.max(120, Math.ceil(maxPlayerW) + 24);
 
     type Col = { label: string; width: number; align: 'left' | 'center' | 'right' };
     const cols: Col[] = [
-      { label: 'RANK', width: 70, align: 'center' },
-      { label: 'TEAM', width: 180, align: 'left' },
-      { label: 'PLAYER', width: 160, align: 'left' },
-      { label: 'PTS', width: 70, align: 'center' },
-      ...(lastRound ? [{ label: `R${lastRound.round}`, width: 70, align: 'center' as const }] : []),
-      { label: 'CORRECT', width: 80, align: 'center' },
-      { label: 'PICKS', width: 70, align: 'center' },
-      { label: 'ACC', width: 70, align: 'center' },
+      { label: 'RANK', width: 60, align: 'center' },
+      { label: 'TEAM', width: teamColW, align: 'left' },
+      { label: 'PLAYER', width: playerColW, align: 'left' },
+      { label: 'PTS', width: 55, align: 'center' },
+      ...(lastRound ? [{ label: `R${lastRound.round}`, width: 55, align: 'center' as const }] : []),
+      { label: 'CORRECT', width: 70, align: 'center' },
+      { label: 'PICKS', width: 55, align: 'center' },
+      { label: 'ACC', width: 55, align: 'center' },
     ];
 
     const padX = 40;
     const tableW = cols.reduce((s, c) => s + c.width, 0);
     const canvasW = tableW + padX * 2;
     const headerAreaH = 80;
-    const rowH = 36;
-    const thH = 32;
+    const rowH = 30;
+    const thH = 28;
     const footerH = 40;
     const canvasH = headerAreaH + thH + leaderboard.length * rowH + footerH;
 
@@ -127,7 +137,7 @@ function LeaderboardContent() {
     for (const col of cols) {
       ctx.textAlign = col.align;
       const tx = col.align === 'center' ? x + col.width / 2 : col.align === 'left' ? x + 12 : x + col.width - 12;
-      ctx.fillText(col.label, tx, tableTop + 21);
+      ctx.fillText(col.label, tx, tableTop + 18);
       x += col.width;
     }
 
@@ -146,7 +156,7 @@ function LeaderboardContent() {
       ctx.fillStyle = '#e0e0e0';
       ctx.fillRect(padX, y + rowH - 1, tableW, 1);
 
-      const textY = y + 23;
+      const textY = y + 19;
       let cx = padX;
 
       // Rank
