@@ -72,15 +72,16 @@ function LeaderboardContent() {
     const fontTitle = 'bold 20px "JetBrains Mono", monospace';
     const fontSubtitle = '12px "JetBrains Mono", monospace';
 
-    const cols = [
-      { label: 'RANK', width: 70, align: 'center' as const },
-      { label: 'TEAM', width: 180, align: 'left' as const },
-      { label: 'PLAYER', width: 160, align: 'left' as const },
-      { label: 'PTS', width: 70, align: 'center' as const },
+    type Col = { label: string; width: number; align: 'left' | 'center' | 'right' };
+    const cols: Col[] = [
+      { label: 'RANK', width: 70, align: 'center' },
+      { label: 'TEAM', width: 180, align: 'left' },
+      { label: 'PLAYER', width: 160, align: 'left' },
+      { label: 'PTS', width: 70, align: 'center' },
       ...(lastRound ? [{ label: `R${lastRound.round}`, width: 70, align: 'center' as const }] : []),
-      { label: 'CORRECT', width: 80, align: 'center' as const },
-      { label: 'PICKS', width: 70, align: 'center' as const },
-      { label: 'ACC', width: 70, align: 'center' as const },
+      { label: 'CORRECT', width: 80, align: 'center' },
+      { label: 'PICKS', width: 70, align: 'center' },
+      { label: 'ACC', width: 70, align: 'center' },
     ];
 
     const padX = 40;
