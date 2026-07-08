@@ -253,8 +253,8 @@ function LeaderboardContent() {
             ))}
           </select>
           {leaderboard.length > 0 && (
-            <button className="btn btn-outline btn-sm" onClick={downloadPng} disabled={generating}>
-              {generating ? 'Generating...' : 'Download PNG'}
+            <button className="btn btn-outline btn-sm" onClick={downloadPng} disabled={generating} title="Download standings as PNG">
+              {generating ? '...' : '⬇'}
             </button>
           )}
         </div>
