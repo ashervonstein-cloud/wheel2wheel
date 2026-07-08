@@ -249,7 +249,7 @@ export default function AdminPage() {
               <div className="flex-between" style={{ marginBottom: 12 }}>
                 <div>
                   <span style={{ fontWeight: 700, fontSize: '0.95rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{race.name}</span>
-                  <span className="text-sm text-gray" style={{ marginLeft: 12 }}>Round {race.round} · {race.season}</span>
+                  <span className="text-sm text-gray" style={{ marginLeft: 12 }}>Round {race.round} · {race.season} · {race.submissionCount ?? 0} {race.submissionCount === 1 ? 'entry' : 'entries'}</span>
                 </div>
                 <span className={`status-badge status-${race.status}`}>{race.status}</span>
               </div>

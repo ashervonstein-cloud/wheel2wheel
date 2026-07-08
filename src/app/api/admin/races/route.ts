@@ -18,11 +18,26 @@ export async function GET() {
   }
 
   const races = await prisma.race.findMany({
-    include: { matchups: { orderBy: { order: 'asc' } } },
+    include: {
+      matchups: {
+        orderBy: { order: 'asc' },
+        include: {
+          picks: { select: { teamId: true } },
+        },
+      },
+    },
     orderBy: [{ season: 'desc' }, { round: 'asc' }],
   });
 
-  return NextResponse.json(races);
+  // Count distinct teams with picks per race and strip pick details
+  const racesWithCounts = races.map(r => {
+    const teamIds = new Set<string>();
+    r.matchups.forEach(m => m.picks.forEach(p => teamIds.add(p.teamId)));
+    const matchups = r.matchups.map(({ picks, ...m }) => m);
+    return { ...r, matchups, submissionCount: teamIds.size };
+  });
+
+  return NextResponse.json(racesWithCounts);
 }
 
 // POST: create a new race with matchups
