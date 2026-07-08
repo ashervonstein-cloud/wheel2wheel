@@ -187,28 +187,34 @@ function LeaderboardContent() {
       ctx.fillText(String(entry.points), cx + cols[3].width / 2, textY);
       cx += cols[3].width;
 
+      // Remaining columns: use cols array index to stay in sync
+      let colIdx = 4; // next col after PTS
+
       // Last round points (if applicable)
       if (lastRound) {
         ctx.font = font;
         ctx.fillStyle = '#666666';
-        ctx.fillText(entry.lastRoundPoints > 0 ? `+${entry.lastRoundPoints}` : '0', cx + 35, textY);
-        cx += 70;
+        ctx.fillText(entry.lastRoundPoints > 0 ? `+${entry.lastRoundPoints}` : '0', cx + cols[colIdx].width / 2, textY);
+        cx += cols[colIdx].width;
+        colIdx++;
       }
 
       // Correct
       ctx.font = font;
       ctx.fillStyle = '#000000';
-      ctx.fillText(String(entry.correct), cx + 40, textY);
-      cx += 80;
+      ctx.fillText(String(entry.correct), cx + cols[colIdx].width / 2, textY);
+      cx += cols[colIdx].width;
+      colIdx++;
 
       // Picks
-      ctx.fillText(String(entry.picks), cx + 35, textY);
-      cx += 70;
+      ctx.fillText(String(entry.picks), cx + cols[colIdx].width / 2, textY);
+      cx += cols[colIdx].width;
+      colIdx++;
 
       // Accuracy
       ctx.fillStyle = '#666666';
       const acc = entry.picks > 0 ? `${Math.round((entry.correct / entry.picks) * 100)}%` : '—';
-      ctx.fillText(acc, cx + 35, textY);
+      ctx.fillText(acc, cx + cols[colIdx].width / 2, textY);
     });
 
     // Footer
