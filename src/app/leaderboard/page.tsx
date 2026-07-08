@@ -94,9 +94,10 @@ function LeaderboardContent() {
       { label: 'ACC', width: 55, align: 'center' },
     ];
 
-    const padX = 40;
+    const padL = 40;
+    const padR = 60;
     const tableW = cols.reduce((s, c) => s + c.width, 0);
-    const canvasW = tableW + padX * 2;
+    const canvasW = tableW + padL + padR;
     const headerAreaH = 80;
     const rowH = 30;
     const thH = 28;
@@ -117,23 +118,23 @@ function LeaderboardContent() {
     ctx.fillStyle = '#000000';
     ctx.font = fontTitle;
     ctx.textAlign = 'left';
-    ctx.fillText('WHEEL 2 WHEEL', padX, 36);
+    ctx.fillText('WHEEL 2 WHEEL', padL, 36);
     ctx.fillStyle = '#666666';
     ctx.font = fontSubtitle;
     const subtitle = leagueName + (selectedRound ? ` — After Round ${selectedRound}` : ' — Full Season');
-    ctx.fillText(subtitle, padX, 56);
+    ctx.fillText(subtitle, padL, 56);
 
     // Divider under header
     ctx.fillStyle = '#000000';
-    ctx.fillRect(padX, headerAreaH - 10, tableW, 2);
+    ctx.fillRect(padL, headerAreaH - 10, tableW, 2);
 
     // Table header
     const tableTop = headerAreaH;
     ctx.fillStyle = '#000000';
-    ctx.fillRect(padX, tableTop, tableW, thH);
+    ctx.fillRect(padL, tableTop, tableW, thH);
     ctx.fillStyle = '#ffffff';
     ctx.font = fontSmall;
-    let x = padX;
+    let x = padL;
     for (const col of cols) {
       ctx.textAlign = col.align;
       const tx = col.align === 'center' ? x + col.width / 2 : col.align === 'left' ? x + 12 : x + col.width - 12;
@@ -149,15 +150,15 @@ function LeaderboardContent() {
       // Alternating row bg
       if (i % 2 === 1) {
         ctx.fillStyle = '#f5f5f5';
-        ctx.fillRect(padX, y, tableW, rowH);
+        ctx.fillRect(padL, y, tableW, rowH);
       }
 
       // Row bottom border
       ctx.fillStyle = '#e0e0e0';
-      ctx.fillRect(padX, y + rowH - 1, tableW, 1);
+      ctx.fillRect(padL, y + rowH - 1, tableW, 1);
 
       const textY = y + 19;
-      let cx = padX;
+      let cx = padL;
 
       // Rank
       ctx.textAlign = 'center';
@@ -214,7 +215,7 @@ function LeaderboardContent() {
     ctx.fillStyle = '#666666';
     ctx.font = fontSmall;
     ctx.textAlign = 'left';
-    ctx.fillText('Scoring: 1 correct = 1pt · 2 correct = 3pts · 3 correct = 6pts', padX, canvasH - 14);
+    ctx.fillText('Scoring: 1 correct = 1pt · 2 correct = 3pts · 3 correct = 6pts', padL, canvasH - 14);
 
     // Download
     const link = document.createElement('a');
