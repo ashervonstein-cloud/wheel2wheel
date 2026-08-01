@@ -14,8 +14,19 @@ const mono = JetBrains_Mono({
 
 const DESCRIPTION = 'Pick the winner from 3 driver head-to-head matchups each race week. Score points, compete in leagues, win the championship.';
 
+// Social previews need an absolute address. Vercel supplies its own, so this
+// works on a fresh deploy with nothing to configure; the override is only for
+// a custom domain.
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : 'http://localhost:3000');
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: 'Wheel2Wheel – F1 Fantasy Picks',
     template: '%s · Wheel2Wheel',
