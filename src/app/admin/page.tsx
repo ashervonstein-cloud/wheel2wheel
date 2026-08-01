@@ -212,8 +212,9 @@ export default function AdminPage() {
       </div>
 
       {message && (
-        <div className="alert alert-success" style={{ cursor: 'pointer' }} onClick={() => setMessage('')}>
+        <div className="alert alert-success" role="status">
           {message}
+          <button className="alert-dismiss" onClick={() => setMessage('')}>Dismiss</button>
         </div>
       )}
 
@@ -259,7 +260,7 @@ export default function AdminPage() {
                 {race.matchups.map((m: any) => (
                   <div key={m.id} className="text-sm" style={{ padding: '4px 0', color: '#374151' }}>
                     <strong>{m.order}.</strong> {m.title}: {m.driver1Name} vs {m.driver2Name}
-                    {m.winnerId && <span className="badge badge-green" style={{ marginLeft: 8 }}>✓ {m.winnerId === 'driver1' ? m.driver1Name : m.driver2Name} won</span>}
+                    {m.winnerId && <span className="badge badge-solid" style={{ marginLeft: 8 }}>{m.winnerId === 'driver1' ? m.driver1Name : m.driver2Name} won</span>}
                   </div>
                 ))}
               </div>
@@ -343,7 +344,7 @@ export default function AdminPage() {
           {calLoading && <div className="loading">Fetching calendar...</div>}
 
           {!calLoading && calRaces.length > 0 && (
-            <div className="card" style={{ padding: 0 }}>
+            <div className="card table-scroll" style={{ padding: 0 }}>
               <table>
                 <thead>
                   <tr>
@@ -362,7 +363,7 @@ export default function AdminPage() {
                     );
                     return (
                       <tr key={cr.gpKey} style={{ opacity: alreadyImported ? 0.4 : 1 }}>
-                        <td style={{ fontWeight: 700, color: 'var(--red)', width: 48 }}>
+                        <td style={{ fontWeight: 700, color: 'var(--red-ink)', width: 48 }}>
                           {String(cr.round).padStart(2, '0')}
                         </td>
                         <td style={{ fontWeight: 600 }}>
@@ -463,7 +464,7 @@ export default function AdminPage() {
             <h3 style={{ marginBottom: 16, fontWeight: 700, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Matchups</h3>
             {matchups.map((m, i) => (
               <div key={i} style={{ border: '1px solid #000', padding: 16, marginBottom: 12 }}>
-                <p className="text-sm" style={{ fontWeight: 700, marginBottom: 12, textTransform: 'uppercase', letterSpacing: '1px', color: m.isBonus ? 'var(--red)' : 'inherit' }}>
+                <p className="text-sm" style={{ fontWeight: 700, marginBottom: 12, textTransform: 'uppercase', letterSpacing: '1px', color: m.isBonus ? 'var(--red-ink)' : 'inherit' }}>
                   {m.isBonus ? '[Bonus]' : `Matchup ${m.order}`}
                 </p>
                 <div className="admin-matchup-grid">

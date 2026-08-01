@@ -93,6 +93,9 @@ export async function GET(
         correct: pts?.correct ?? 0,
         picks: pts?.total ?? 0,
         lastRoundPoints: lastRoundMap.get(lt.teamId) ?? 0,
+        // Absent result vs. a result of zero: "didn't play" and "played and
+        // scored nothing" are different facts and must not both read as 0.
+        lastRoundPlayed: lastRoundMap.has(lt.teamId),
       };
     })
     .sort((a, b) => b.points - a.points)

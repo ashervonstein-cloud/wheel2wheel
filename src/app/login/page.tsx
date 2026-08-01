@@ -132,7 +132,7 @@ function LoginForm() {
 
         <p className="text-sm text-gray text-center mt-16">
           No account?{' '}
-          <Link href="/signup" style={{ color: 'var(--red)', textDecoration: 'none', fontWeight: 700 }}>
+          <Link href="/signup" style={{ color: 'var(--red-ink)', textDecoration: 'none', fontWeight: 700 }}>
             Sign up free
           </Link>
         </p>

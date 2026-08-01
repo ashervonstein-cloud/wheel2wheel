@@ -45,12 +45,12 @@ export default function Home() {
       <div className="home-features">
         {features.map(({ num, title, desc }, i) => (
           <div key={num} className="home-feature" data-index={i}>
-            <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--red)', letterSpacing: '2px', marginBottom: 10 }}>
+            <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--red-ink)', letterSpacing: '2px', marginBottom: 10 }}>
               [{num}]
             </div>
-            <h3 style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 10 }}>
+            <h2 style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 10 }}>
               {title}
-            </h3>
+            </h2>
             <p style={{ color: 'var(--gray)', fontSize: '0.8rem', lineHeight: 1.7 }}>{desc}</p>
           </div>
         ))}
@@ -58,7 +58,7 @@ export default function Home() {
 
       {/* Scoring key */}
       <div className="home-scoring">
-        {['1 correct = 1 pt', '2 correct = 3 pts', '3 correct = 6 pts', 'all 4 correct (double week) = 2×'].map(s => (
+        {['1 correct = 1 pt', '2 correct = 3 pts', '3 correct = 6 pts', 'all correct on a 2\u00d7 week = doubled'].map(s => (
           <span key={s} style={{ fontSize: '0.72rem', color: 'var(--gray)', letterSpacing: '0.5px' }}>{s}</span>
         ))}
       </div>

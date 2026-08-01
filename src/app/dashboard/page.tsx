@@ -138,8 +138,9 @@ export default function DashboardPage() {
       </div>
 
       {message && (
-        <div className="alert alert-success" style={{ cursor: 'pointer' }} onClick={() => setMessage('')}>
-          {message} <span style={{ float: 'right', opacity: 0.5 }}>[dismiss]</span>
+        <div className="alert alert-success" role="status">
+          {message}
+          <button className="alert-dismiss" onClick={() => setMessage('')}>Dismiss</button>
         </div>
       )}
 
@@ -173,7 +174,7 @@ export default function DashboardPage() {
                     <button
                       className="btn btn-outline btn-sm"
                       onClick={() => startEditTeam(team)}
-                      style={{ fontSize: '0.7rem', padding: '2px 8px' }}
+                      style={{ fontSize: '0.7rem' }}
                     >
                       Rename
                     </button>
@@ -183,7 +184,7 @@ export default function DashboardPage() {
               )}
               {editingTeamId !== team.id && team.leagueTeams?.map((lt: any) => (
                 <Link key={lt.id} href={`/leaderboard?leagueId=${lt.leagueId}`}
-                  className="text-sm" style={{ color: 'var(--red)', display: 'block', marginTop: 4, textDecoration: 'none', fontWeight: 600 }}>
+                  className="text-sm league-link" style={{ color: 'var(--red-ink)', fontWeight: 600 }}>
                   {lt.league.name} /
                 </Link>
               ))}
