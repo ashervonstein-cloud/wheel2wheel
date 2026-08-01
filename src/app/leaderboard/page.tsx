@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 
 function LeaderboardContent() {
   const { status } = useSession();
@@ -14,12 +15,14 @@ function LeaderboardContent() {
   const [completedRaces, setCompletedRaces] = useState<{ round: number; name: string }[]>([]);
   const [lastRound, setLastRound] = useState<{ round: number; name: string } | null>(null);
   const [selectedRound, setSelectedRound] = useState(''); // '' = all rounds
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [myTeamIds, setMyTeamIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    if (status === 'authenticated') fetchLeagues();
+    if (status === 'authenticated') { fetchLeagues(); fetchMyTeams(); }
   }, [status]);
 
   useEffect(() => {
@@ -27,38 +30,77 @@ function LeaderboardContent() {
   }, [selectedLeague, selectedRound]);
 
   const fetchLeagues = async () => {
-    const res = await fetch('/api/leagues');
-    const data = await res.json();
-    setLeagues(data);
-    if (!selectedLeague && data.length > 0) setSelectedLeague(data[0].id);
+    try {
+      const res = await fetch('/api/leagues');
+      if (!res.ok) throw new Error('failed');
+      const data = await res.json();
+      const list = Array.isArray(data) ? data : [];
+      setLeagues(list);
+      // Open on a league you're actually in — otherwise the page answers
+      // "where am I?" with standings you don't appear in.
+      const initial = list.find((l: any) => l.isMember) ?? list[0];
+      if (!selectedLeague && initial) setSelectedLeague(initial.id);
+      else if (list.length === 0) setLoading(false);
+    } catch {
+      setError("Couldn't load your leagues. Check your connection and try again.");
+      setLoading(false);
+    }
+  };
+
+  // Knowing which rows are yours is the whole point of opening this page.
+  const fetchMyTeams = async () => {
+    try {
+      const res = await fetch('/api/teams');
+      if (!res.ok) return;
+      const data = await res.json();
+      if (Array.isArray(data)) setMyTeamIds(new Set(data.map((t: any) => t.id)));
+    } catch {
+      /* the board still renders, just without the you-marker */
+    }
   };
 
   const fetchLeaderboard = async (leagueId: string, throughRound: string) => {
     setLoading(true);
-    const url = throughRound
-      ? `/api/leagues/${leagueId}/leaderboard?throughRound=${throughRound}`
-      : `/api/leagues/${leagueId}/leaderboard`;
-    const res = await fetch(url);
-    const data = await res.json();
-    setLeaderboard(data.leaderboard ?? []);
-    setLeagueName(data.league?.name ?? '');
-    setCompletedRaces(data.completedRaces ?? []);
-    setLastRound(data.lastRound ?? null);
-    setLoading(false);
+    setError('');
+    try {
+      const url = throughRound
+        ? `/api/leagues/${leagueId}/leaderboard?throughRound=${throughRound}`
+        : `/api/leagues/${leagueId}/leaderboard`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('failed');
+      const data = await res.json();
+      setLeaderboard(data.leaderboard ?? []);
+      setLeagueName(data.league?.name ?? '');
+      setCompletedRaces(data.completedRaces ?? []);
+      setLastRound(data.lastRound ?? null);
+    } catch {
+      // An error must not masquerade as an empty league.
+      setLeaderboard([]);
+      setError("Couldn't load these standings. Check your connection and try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const rankLabel = (rank: number) => String(rank).padStart(2, '0') + '.';
+  const accuracy = (e: any) => (e.picks > 0 ? `${Math.round((e.correct / e.picks) * 100)}%` : '—');
+  // "0" reads as "played and scored nothing". An em dash reads as "wasn't there".
+  const delta = (e: any) => (!e.lastRoundPlayed ? '—' : e.lastRoundPoints > 0 ? `+${e.lastRoundPoints}` : '0');
 
   const currentLeague = leagues.find(l => l.id === selectedLeague);
   const inviteLink = currentLeague
     ? `${window.location.origin}/leagues/join/${currentLeague.inviteCode}`
     : null;
 
-  const copyInviteLink = () => {
+  const copyInviteLink = async () => {
     if (!inviteLink) return;
-    navigator.clipboard.writeText(inviteLink);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(inviteLink);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      window.prompt('Copy this invite link:', inviteLink);
+    }
   };
 
   const downloadPng = async () => {
@@ -224,12 +266,16 @@ function LeaderboardContent() {
     ctx.fillText('Scoring: 1 correct = 1pt · 2 correct = 3pts · 3 correct = 6pts', padL, canvasH - 14);
 
     // Download
-    const link = document.createElement('a');
-    link.download = `w2w-standings-${leagueName.replace(/\s+/g, '-').toLowerCase()}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-
-    setGenerating(false);
+    try {
+      const link = document.createElement('a');
+      link.download = `w2w-standings-${leagueName.replace(/\s+/g, '-').toLowerCase()}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch {
+      setError("Couldn't generate the standings image on this browser.");
+    } finally {
+      setGenerating(false);
+    }
   };
 
   return (
@@ -239,22 +285,42 @@ function LeaderboardContent() {
           <h1>Leaderboard</h1>
           <p>{leagueName || 'Select a league to view standings'}{selectedRound ? ` — after Round ${selectedRound}` : ''}</p>
         </div>
+        {/* League first, then the round filter that depends on it. */}
         <div className="leaderboard-filters">
-          <select value={selectedRound} onChange={e => setSelectedRound(e.target.value)}>
+          <label htmlFor="lb-league" className="sr-only">League</label>
+          <select
+            id="lb-league"
+            value={selectedLeague}
+            onChange={e => { setSelectedLeague(e.target.value); setSelectedRound(''); }}
+          >
+            <option value="">Select a league...</option>
+            {leagues.map((l: any) => (
+              <option key={l.id} value={l.id}>
+                {l.name}{l.isMember ? '' : ' (not joined)'}
+              </option>
+            ))}
+          </select>
+          <label htmlFor="lb-round" className="sr-only">Standings through round</label>
+          <select id="lb-round" value={selectedRound} onChange={e => setSelectedRound(e.target.value)}>
             <option value="">All Rounds</option>
             {completedRaces.map((r) => (
               <option key={r.round} value={r.round}>After R{r.round} — {r.name}</option>
             ))}
           </select>
-          <select value={selectedLeague} onChange={e => { setSelectedLeague(e.target.value); setSelectedRound(''); }}>
-            <option value="">Select a league...</option>
-            {leagues.map((l: any) => (
-              <option key={l.id} value={l.id}>{l.name}</option>
-            ))}
-          </select>
           {leaderboard.length > 0 && (
-            <button className="btn btn-outline btn-sm" onClick={downloadPng} disabled={generating} title="Download standings as PNG">
-              {generating ? '...' : '⬇'}
+            <button
+              className="btn btn-outline btn-sm btn-icon"
+              onClick={downloadPng}
+              disabled={generating}
+              aria-label="Download standings as a PNG image"
+            >
+              {generating ? (
+                <span aria-hidden="true" style={{ fontSize: '0.7rem' }}>···</span>
+              ) : (
+                <svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.6">
+                  <path d="M8 1.5v9M4.5 7.5L8 11l3.5-3.5M2 13.5h12" />
+                </svg>
+              )}
             </button>
           )}
         </div>
@@ -275,56 +341,118 @@ function LeaderboardContent() {
         </div>
       )}
 
+      {error && (
+        <div className="alert alert-error">
+          <span className="alert-label">Error</span>{error}
+        </div>
+      )}
+
       <div className="card" style={{ padding: 0 }}>
         {loading ? (
           <div className="loading">Loading standings...</div>
+        ) : leagues.length === 0 ? (
+          <div className="text-center" style={{ padding: 48 }}>
+            <p style={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 8 }}>
+              You&apos;re not in a league yet
+            </p>
+            <p className="text-gray text-sm" style={{ marginBottom: 16 }}>
+              Standings are per league. Create one and invite your friends, or join
+              theirs with an invite code.
+            </p>
+            <Link href="/dashboard" className="btn btn-primary">Create or join a league</Link>
+          </div>
         ) : leaderboard.length === 0 ? (
           <div className="text-center" style={{ padding: 48 }}>
-            <p className="text-gray">No entries yet. Share your league invite link to get started!</p>
+            <p style={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 8 }}>
+              No teams in this league yet
+            </p>
+            <p className="text-gray text-sm">
+              Share the invite link above and the standings will fill in.
+            </p>
           </div>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Rank</th>
-                <th>Team</th>
-                <th>Player</th>
-                <th>Points</th>
-                {lastRound && <th>R{lastRound.round}</th>}
-                <th>Correct</th>
-                <th>Picks Made</th>
-                <th>Accuracy</th>
-              </tr>
-            </thead>
-            <tbody>
-              {leaderboard.map((entry: any) => (
-                <tr key={entry.teamId}>
-                  <td>
-                    <span className={entry.rank <= 3 ? `rank-${entry.rank}` : 'text-gray'}>
-                      {rankLabel(entry.rank)}
-                    </span>
-                  </td>
-                  <td style={{ fontWeight: 700 }}>{entry.teamName}</td>
-                  <td className="text-gray">{entry.playerName}</td>
-                  <td>
-                    <span style={{ fontWeight: 800, color: entry.rank === 1 ? 'var(--red)' : 'inherit' }}>
-                      {entry.points}
-                    </span>
-                  </td>
-                  {lastRound && (
-                    <td className="text-gray">
-                      {entry.lastRoundPoints > 0 ? `+${entry.lastRoundPoints}` : '0'}
-                    </td>
-                  )}
-                  <td>{entry.correct}</td>
-                  <td>{entry.picks}</td>
-                  <td className="text-gray">
-                    {entry.picks > 0 ? `${Math.round((entry.correct / entry.picks) * 100)}%` : '—'}
-                  </td>
+          <>
+            <table className="lb-table">
+              <caption className="sr-only">
+                {leagueName} standings{selectedRound ? ` after round ${selectedRound}` : ', full season'}
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Rank</th>
+                  <th scope="col">Team</th>
+                  <th scope="col">Player</th>
+                  <th scope="col">Points</th>
+                  {lastRound && <th scope="col">R{lastRound.round}</th>}
+                  <th scope="col">Correct</th>
+                  <th scope="col">Picks Made</th>
+                  <th scope="col">Accuracy</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {leaderboard.map((entry: any) => {
+                  const isYou = myTeamIds.has(entry.teamId);
+                  return (
+                    <tr key={entry.teamId} className={isYou ? 'is-you' : undefined}>
+                      <td>
+                        <span className={entry.rank <= 3 ? `rank-${entry.rank}` : 'text-gray'}>
+                          {rankLabel(entry.rank)}
+                        </span>
+                      </td>
+                      <td style={{ fontWeight: 700 }}>
+                        {entry.teamName}
+                        {isYou && <span className="you-tag">You</span>}
+                      </td>
+                      <td className="text-gray">{entry.playerName}</td>
+                      <td>
+                        <span style={{ fontWeight: 800, color: entry.rank === 1 ? 'var(--red-ink)' : 'inherit' }}>
+                          {entry.points}
+                        </span>
+                      </td>
+                      {lastRound && <td className="text-gray">{delta(entry)}</td>}
+                      <td>{entry.correct}</td>
+                      <td>{entry.picks}</td>
+                      <td className="text-gray">{accuracy(entry)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+
+            {/* Mobile: rank, team, points up front — the three things the
+                page is actually asked. The rest sits in the meta line. */}
+            <div className="lb-cards">
+              {leaderboard.map((entry: any) => {
+                const isYou = myTeamIds.has(entry.teamId);
+                return (
+                  <div
+                    key={entry.teamId}
+                    className={`lb-card${isYou ? ' is-you' : ''}${entry.rank === 1 ? ' is-first' : ''}`}
+                  >
+                    <span className="lb-card-rank">{rankLabel(entry.rank)}</span>
+                    <div>
+                      <div className="lb-card-team">
+                        {entry.teamName}
+                        {isYou && <span className="you-tag">You</span>}
+                      </div>
+                      <div className="lb-card-meta">
+                        <span>{entry.playerName}</span>
+                        <span>{entry.correct}/{entry.picks} · {accuracy(entry)}</span>
+                        {lastRound && (
+                          <span>
+                            R{lastRound.round} <span className="lb-card-delta">{delta(entry)}</span>
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="lb-card-pts">
+                      <b>{entry.points}</b>
+                      <span>pts</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
         )}
       </div>
 

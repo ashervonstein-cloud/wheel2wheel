@@ -4,11 +4,21 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --red:   #ff1e00;
+  /* Signal red. --red is the surface/fill red; --red-ink is the same hue
+     darkened just enough to clear 4.5:1 as text on white (5.2:1) and on
+     --light (4.9:1). Use --red-ink for anything a person reads. */
+  --red:      #ff1e00;
+  --red-ink:  #d81600;
+  --red-deep: #cc1800;
+  --red-wash: rgba(255, 30, 0, 0.09);
+
   --black: #000000;
   --white: #ffffff;
-  --gray:  #666666;
+  --gray:  #666666;   /* 5.7:1 on white — the floor for small type */
+  --dim:   #999999;   /* 7.4:1 on black — the floor for small type on nav */
+  --rule:  #dddddd;   /* hairlines only, never text */
   --light: #f5f5f5;
+  --fill:  #f0f0f0;  /* distribution bars — light enough that --red-ink stays AA on top */
   --border: 1px solid #000000;
 }
 
@@ -43,17 +53,29 @@ nav .logo {
   flex-shrink: 0;
 }
 nav a {
-  color: #777;
+  color: var(--dim);
   text-decoration: none;
   font-size: 0.75rem;
   letter-spacing: 0.8px;
   text-transform: uppercase;
   font-weight: 500;
   transition: color 0.1s;
+  /* Real hit area: the bare inline link was a 17px target. */
+  padding: 8px 2px;
+  display: inline-flex;
+  align-items: center;
 }
 nav a:hover { color: var(--white); }
+/* Where am I? The nav never said. */
+nav a[aria-current="page"] {
+  color: var(--white);
+  box-shadow: inset 0 -2px 0 var(--red);
+}
+nav .nav-admin { color: var(--red); }
+nav .nav-signout { border-color: #555; color: var(--dim); }
+nav .nav-signout:hover { background: var(--white); color: var(--black); border-color: var(--white); }
 nav .spacer { flex: 1; }
-nav .user-name { font-size: 0.72rem; color: #555; }
+nav .user-name { font-size: 0.72rem; color: var(--dim); }
 
 /* ── Cards ─────────────────────────────────────── */
 .card {
@@ -95,13 +117,30 @@ button:hover, .btn:hover { background: var(--black); color: var(--white); }
 button:disabled { opacity: 0.35; cursor: not-allowed; }
 button:disabled:hover { background: var(--white); color: var(--black); }
 
-.btn-primary { background: var(--red); color: var(--white); border-color: var(--red); }
-.btn-primary:hover { background: #cc1800; color: var(--white); border-color: #cc1800; }
+.btn-primary { background: var(--red-ink); color: var(--white); border-color: var(--red-ink); }
+.btn-primary:hover { background: var(--red-deep); color: var(--white); border-color: var(--red-deep); }
 .btn-secondary { background: var(--black); color: var(--white); border-color: var(--black); }
 .btn-secondary:hover { background: #222; color: var(--white); }
 .btn-outline { background: var(--white); color: var(--black); border-color: var(--black); }
 .btn-outline:hover { background: var(--black); color: var(--white); }
-.btn-sm { padding: 4px 10px; font-size: 0.68rem; }
+.btn-sm { padding: 7px 12px; font-size: 0.68rem; }
+
+/* Icon-only control: square, and never smaller than the WCAG 2.2 floor. */
+.btn-icon { padding: 0; width: 32px; height: 32px; flex-shrink: 0; }
+.btn-icon svg { width: 14px; height: 14px; }
+
+/* ── Focus ─────────────────────────────────────── */
+/* One rule for every focusable thing. The offset ring reads against both
+   the white page and the black nav, and can't be mistaken for .selected. */
+:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 2px;
+}
+nav :focus-visible,
+.matchup-title :focus-visible,
+.btn-secondary:focus-visible {
+  outline-color: var(--white);
+}
 
 /* ── Forms ─────────────────────────────────────── */
 .form-group { margin-bottom: 16px; }
@@ -116,24 +155,23 @@ label {
 }
 input, select {
   width: 100%;
-  padding: 8px 12px;
+  padding: 10px 12px;
   border: 1px solid var(--black);
   font-family: inherit;
   font-size: 0.85rem;
-  outline: none;
   background: var(--white);
   color: var(--black);
   border-radius: 0;
 }
+input::placeholder { color: var(--gray); }
 input[type="checkbox"] {
   width: auto;
+  min-width: 18px;
+  min-height: 18px;
   cursor: pointer;
+  accent-color: var(--red-ink);
 }
-input:focus, select:focus {
-  border-color: var(--red);
-  outline: 1px solid var(--red);
-  outline-offset: 0;
-}
+input:focus-visible, select:focus-visible { border-color: var(--red-ink); }
 
 /* ── Matchup Picker ────────────────────────────── */
 .matchup-card {
@@ -172,11 +210,13 @@ input:focus, select:focus {
   border-right: 1px solid #ddd;
   border-radius: 0;
 }
-.driver-option:last-child { border-right: none; border-left: 1px solid #ddd; }
-.driver-option:hover:not(:disabled) { background: var(--red); color: var(--white); }
-.driver-option.selected { background: var(--red); color: var(--white); }
+.driver-option:last-child { border-right: none; border-left: 1px solid var(--rule); }
+/* Hover is a wash, selected is solid. They used to be the same red, which
+   made moving the cursor across the grid look like picking. */
+.driver-option:hover:not(:disabled):not(.selected) { background: var(--red-wash); }
+.driver-option.selected { background: var(--red-ink); color: var(--white); }
 .driver-option.correct { background: var(--white); color: var(--black); font-weight: 800; }
-.driver-option.incorrect { color: #aaa; text-decoration: line-through; background: #fafafa; }
+.driver-option.incorrect { color: var(--gray); text-decoration: line-through; background: #fafafa; }
 .vs-divider {
   font-weight: 800;
   font-size: 0.62rem;
@@ -192,26 +232,34 @@ input:focus, select:focus {
   overflow: hidden;
   padding: 22px 16px;
   text-align: center;
-  border-right: 1px solid #ddd;
+  border-right: 1px solid var(--rule);
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 88px;
 }
-.driver-viz:last-child { border-right: none; border-left: 1px solid #ddd; }
+.driver-viz:last-child { border-right: none; border-left: 1px solid var(--rule); }
 
+/* Anchored at the centre line and scaled outward from it, so the two bars
+   read as one tug-of-war across the VS. scaleX rather than width: the fill
+   is composited instead of laid out on every frame. */
 .driver-viz-fill {
   position: absolute;
   top: 0;
   height: 100%;
-  background: #eeeeee;
-  transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 100%;
+  background: var(--fill);
+  transform: scaleX(0);
+  transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
 }
-.driver-viz-fill-left  { right: 0; } /* anchored to center, grows left */
-.driver-viz-fill-right { left: 0; }  /* anchored to center, grows right */
+.driver-viz-fill-left  { right: 0; transform-origin: right center; }
+.driver-viz-fill-right { left: 0;  transform-origin: left center; }
 
-.driver-viz.driver-viz-picked .driver-viz-fill {
-  background: rgba(255, 30, 0, 0.1);
+.driver-viz.driver-viz-picked .driver-viz-fill { background: var(--red-wash); }
+
+@media (prefers-reduced-motion: reduce) {
+  .driver-viz-fill { transition: none; }
 }
 
 .driver-viz-content {
@@ -227,26 +275,42 @@ input:focus, select:focus {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  padding-bottom: 3px;
+  border-bottom: 2px solid transparent;
 }
+/* The winner is carried by weight and a rule, the loser by grey and a
+   strike — never by colour alone, and never by an emoji. */
+.driver-viz-name.won  { font-weight: 800; border-bottom-color: var(--black); }
+.driver-viz-name.lost { color: var(--gray); text-decoration: line-through; font-weight: 500; }
+
 .driver-viz-pct {
   font-size: 1.3rem;
   font-weight: 800;
-  color: var(--red);
+  color: var(--red-ink);
   letter-spacing: -0.5px;
   line-height: 1;
 }
 .driver-viz-tag {
-  font-size: 0.58rem;
+  font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
   color: var(--gray);
   border: 1px solid currentColor;
-  padding: 1px 6px;
+  padding: 2px 7px;
   margin-top: 2px;
+  white-space: nowrap;
 }
-.driver-viz-tag.correct   { color: var(--black); border-color: var(--black); }
-.driver-viz-tag.incorrect { color: #bbb; border-color: #bbb; text-decoration: line-through; }
+.driver-viz-tag.correct {
+  color: var(--white);
+  background: var(--black);
+  border-color: var(--black);
+}
+.driver-viz-tag.incorrect {
+  color: var(--gray);
+  border-color: var(--gray);
+  text-decoration: line-through;
+}
 
 /* ── Tables ────────────────────────────────────── */
 table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
@@ -263,7 +327,7 @@ th {
 }
 tr:last-child td { border-bottom: none; }
 tr:hover td { background: var(--light); }
-.rank-1 { color: var(--red); font-weight: 800; }
+.rank-1 { color: var(--red-ink); font-weight: 800; }
 .rank-2 { color: var(--black); font-weight: 700; }
 .rank-3 { color: var(--black); font-weight: 600; }
 
@@ -277,22 +341,46 @@ tr:hover td { background: var(--light); }
   border: 1px solid;
   display: inline-block;
 }
-.status-UPCOMING { color: #888; border-color: #ccc; }
+.status-UPCOMING { color: var(--gray); border-color: #ccc; }
 .status-OPEN { background: var(--black); color: var(--white); border-color: var(--black); }
 .status-CLOSED { color: var(--gray); border-color: #ccc; font-style: italic; }
-.status-COMPLETED { color: var(--red); border-color: var(--red); }
+.status-COMPLETED { color: var(--red-ink); border-color: var(--red-ink); }
 
 /* ── Alerts ────────────────────────────────────── */
+/* One border weight, like every other surface in the system. Tone is
+   carried by the border colour AND a word, never by the tint alone. */
 .alert {
-  padding: 10px 16px;
+  padding: 10px 14px;
   margin-bottom: 16px;
   font-size: 0.8rem;
-  border-left: 3px solid var(--black);
+  border: 1px solid var(--black);
   background: var(--light);
 }
-.alert-error  { border-left-color: var(--red); background: #fff8f7; }
-.alert-success { border-left-color: var(--black); background: var(--light); }
-.alert-info   { border-left-color: var(--black); background: var(--light); }
+.alert-success { border-color: var(--black); background: var(--light); }
+.alert-info    { border-color: var(--black); background: var(--white); }
+.alert-error   { border-color: var(--red-ink); background: #fff6f4; color: var(--black); }
+.alert-label {
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.65rem;
+  margin-right: 8px;
+}
+.alert-error .alert-label { color: var(--red-ink); }
+/* Dismiss was a click-only <div> with a fake "[dismiss]" span — unreachable
+   by keyboard. It's a real button now. */
+.alert-dismiss {
+  float: right;
+  margin: -2px -6px 0 12px;
+  padding: 2px 8px;
+  border: none;
+  background: none;
+  color: var(--gray);
+  font-size: 0.62rem;
+  letter-spacing: 1px;
+  font-weight: 700;
+}
+.alert-dismiss:hover { background: none; color: var(--black); text-decoration: underline; }
 
 /* ── Page headers ──────────────────────────────── */
 .page-header { margin-bottom: 24px; padding-bottom: 14px; border-bottom: 2px solid var(--black); }
@@ -325,8 +413,212 @@ tr:hover td { background: var(--light); }
   border: 1px solid var(--black);
   color: var(--black);
 }
-.badge-green { border-color: var(--black); }
-.badge-red   { border-color: var(--red); color: var(--red); }
+.badge-solid { background: var(--black); color: var(--white); border-color: var(--black); }
+.badge-red   { border-color: var(--red-ink); color: var(--red-ink); }
+
+/* Keyboard users had to tab the whole nav on every page. */
+.skip-link {
+  position: absolute;
+  left: 8px;
+  top: -60px;
+  z-index: 200;
+  background: var(--black);
+  color: var(--white);
+  padding: 10px 16px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: top 0.15s;
+}
+.skip-link:focus { top: 8px; }
+
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Deadline countdown ────────────────────────── */
+/* The deadline is the game. It gets the largest type on the picks page
+   after the race name, and it turns red inside the last six hours. */
+.countdown {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  border: 1px solid var(--black);
+  padding: 10px 14px;
+  background: var(--white);
+}
+.countdown-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--gray);
+  flex-shrink: 0;
+}
+.countdown-value {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.countdown-at {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--gray);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-left: auto;
+  white-space: nowrap;
+}
+.countdown.is-urgent { border-color: var(--red-ink); }
+.countdown.is-urgent .countdown-value,
+.countdown.is-urgent .countdown-label { color: var(--red-ink); }
+.countdown.is-closed .countdown-value { color: var(--gray); }
+
+/* ── Race scoreboard (the reveal) ──────────────── */
+.scoreboard { border: 1px solid var(--black); margin-bottom: 20px; }
+.scoreboard-head {
+  background: var(--black);
+  color: var(--white);
+  padding: 8px 16px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.scoreboard-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: stretch;
+}
+.scoreboard-cell { padding: 20px 16px 18px; text-align: center; }
+.scoreboard-cell + .scoreboard-cell { border-left: 1px solid var(--rule); }
+.scoreboard-value {
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: -2px;
+  line-height: 0.95;
+  font-variant-numeric: tabular-nums;
+}
+.scoreboard-cell.is-points .scoreboard-value { color: var(--red-ink); }
+.scoreboard-caption {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--gray);
+}
+.scoreboard-note {
+  border-top: 1px solid var(--rule);
+  padding: 9px 16px;
+  font-size: 0.7rem;
+  color: var(--gray);
+  text-align: center;
+}
+.scoreboard-note strong { color: var(--black); font-weight: 800; }
+.scoreboard.is-empty .scoreboard-body { grid-template-columns: 1fr; }
+.scoreboard.is-empty .scoreboard-value { font-size: 1.1rem; letter-spacing: 0; }
+
+/* ── Submit bar ────────────────────────────────── */
+.submit-bar { display: flex; justify-content: flex-end; margin-top: 16px; }
+.submit-bar .btn { padding: 12px 32px; }
+
+/* ── Leaderboard ───────────────────────────────── */
+/* "Where am I?" is the only question this page is asked. Your row is
+   tinted, hairline-boxed in red, and tagged — never a slab stripe. */
+tr.is-you td {
+  background: #fff6f4;
+  border-top: 1px solid var(--red-ink);
+  border-bottom-color: var(--red-ink);
+}
+tr.is-you:hover td { background: #ffece8; }
+.you-tag {
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--red-ink);
+  border: 1px solid var(--red-ink);
+  padding: 0 4px;
+  margin-left: 6px;
+  vertical-align: 1px;
+}
+/* Mobile standings: one row per card, so "where am I?" is answered
+   without dragging a 560px table sideways with one thumb. */
+/* Inline league links on the dashboard were 20px-tall tap targets. */
+.league-link {
+  display: inline-block;
+  padding: 6px 0;
+  margin-top: 2px;
+  text-decoration: none;
+}
+.league-link:hover { text-decoration: underline; }
+
+.lb-cards { display: none; }
+.lb-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid #e0e0e0;
+}
+.lb-card:last-child { border-bottom: none; }
+.lb-card.is-you {
+  background: #fff6f4;
+  outline: 1px solid var(--red-ink);
+  outline-offset: -1px;
+}
+.lb-card-rank {
+  font-size: 0.85rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--gray);
+}
+.lb-card.is-first .lb-card-rank { color: var(--red-ink); }
+.lb-card-team { font-size: 0.85rem; font-weight: 700; line-height: 1.3; }
+.lb-card-meta {
+  font-size: 0.68rem;
+  color: var(--gray);
+  margin-top: 2px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+}
+.lb-card-pts { text-align: right; line-height: 1; }
+.lb-card-pts b {
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+  font-variant-numeric: tabular-nums;
+}
+.lb-card.is-first .lb-card-pts b { color: var(--red-ink); }
+.lb-card-pts span {
+  display: block;
+  font-size: 0.58rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--gray);
+  margin-top: 3px;
+}
+.lb-card-delta { color: var(--black); font-weight: 700; }
 
 .loading {
   text-align: center;
@@ -457,10 +749,12 @@ hr { border: none; border-top: 1px solid var(--black); margin: 16px 0; }
   background: none;
   border: none;
   color: var(--white);
-  font-size: 1.3rem;
-  padding: 4px 8px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
   cursor: pointer;
   line-height: 1;
+  margin-right: -10px;
 }
 .nav-hamburger:hover { background: none; color: var(--white); }
 
@@ -474,8 +768,15 @@ hr { border: none; border-top: 1px solid var(--black); margin: 16px 0; }
 }
 .nav-mobile-user {
   font-size: 0.72rem;
-  color: #555;
+  color: var(--dim);
   padding: 8px 0;
+}
+
+/* ── Tablet: nothing lived between 769px and the 960px cap ── */
+@media (min-width: 769px) and (max-width: 1000px) {
+  .home-features { grid-template-columns: 1fr 1fr; }
+  .home-feature[data-index="2"] { border-left: none; border-top: 1px solid var(--black); }
+  .admin-matchup-grid { grid-template-columns: 1fr 1fr; }
 }
 
 /* ══════════════════════════════════════════════════
@@ -501,15 +802,18 @@ hr { border: none; border-top: 1px solid var(--black); margin: 16px 0; }
     z-index: 100;
     gap: 2px;
   }
+  .nav-mobile-menu { border-bottom: 2px solid var(--red); }
   .nav-mobile-menu a,
   .nav-mobile-menu button {
     font-size: 0.78rem;
-    padding: 10px 0;
+    padding: 12px 4px;
     text-align: left;
     width: 100%;
+    justify-content: flex-start;
   }
+  .nav-mobile-menu a[aria-current="page"] { box-shadow: inset 2px 0 0 var(--red); }
   .nav-mobile-menu a {
-    color: #999;
+    color: var(--dim);
     text-decoration: none;
     text-transform: uppercase;
     letter-spacing: 0.8px;
@@ -542,27 +846,53 @@ hr { border: none; border-top: 1px solid var(--black); margin: 16px 0; }
   .card { padding: 16px; }
 
   /* ── Buttons ── */
-  .btn-sm { padding: 6px 12px; }
+  .btn-sm { padding: 9px 14px; }
+  .btn-icon { width: 40px; height: 40px; padding: 0; }
+
+  /* ── Submit: full width, pinned to the thumb zone ── */
+  /* This is the one committing action in the product; it used to be a
+     small right-aligned target with its confirmation off-screen above. */
+  .submit-bar {
+    position: sticky;
+    bottom: 0;
+    margin: 16px -16px 0;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: var(--white);
+    border-top: 2px solid var(--black);
+    z-index: 20;
+  }
+  .submit-bar .btn { width: 100%; padding: 14px 20px; font-size: 0.78rem; }
+  .submit-bar .alert { margin-bottom: 10px; }
 
   /* ── Flex-between: stack when needed ── */
   .flex-between { flex-wrap: wrap; gap: 8px; }
 
-  /* ── Tables: horizontal scroll ── */
-  .card:has(table) {
+  /* ── Tables ── */
+  /* The leaderboard swaps to cards outright (see .lb-cards). Remaining
+     tables scroll, with an explicit wrapper rather than :has(), which
+     Firefox <121 and Safari <15.4 ignore — there the card blew out. */
+  .table-scroll {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
-  table { min-width: 560px; }
+  .table-scroll table { min-width: 560px; }
   th, td { padding: 8px 10px; font-size: 0.78rem; }
 
-  /* ── Leaderboard filters: stack ── */
+  /* ── Leaderboard: cards replace the table ── */
+  .lb-table { display: none; }
+  .lb-cards { display: block; }
+
+  /* ── Leaderboard filters ── */
+  /* League on its own line, then round + download share one — three stacked
+     full-width rows pushed the standings most of a screen down. */
   .leaderboard-filters {
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
     width: 100%;
   }
-  .leaderboard-filters select {
-    width: 100%;
-  }
+  .leaderboard-filters select { width: 100%; }
+  .leaderboard-filters > select:first-of-type { grid-column: 1 / -1; }
 
   /* ── Dashboard grid: single column ── */
   .dashboard-grid {
@@ -653,4 +983,14 @@ hr { border: none; border-top: 1px solid var(--black); margin: 16px 0; }
 
   /* ── Alerts ── */
   .alert { font-size: 0.75rem; padding: 10px 12px; }
+
+  /* ── Countdown ── */
+  .countdown { flex-wrap: wrap; gap: 4px 10px; padding: 10px 12px; }
+  .countdown-value { font-size: 1.5rem; }
+  .countdown-at { margin-left: 0; width: 100%; }
+
+  /* ── Scoreboard ── */
+  .scoreboard-cell { padding: 16px 8px 14px; }
+  .scoreboard-value { font-size: 2.4rem; letter-spacing: -1.5px; }
+  .scoreboard-head { font-size: 0.62rem; padding: 8px 12px; }
 }
