@@ -1016,6 +1016,11 @@ hr { border: none; border-top: 1px solid var(--black); margin: 16px 0; }
   /* ── Alerts ── */
   .alert { font-size: 0.75rem; padding: 10px 12px; }
 
+  /* ── Changelog: date above the entry rather than beside it ── */
+  .entry { grid-template-columns: 1fr; gap: 10px; padding: 22px 0; }
+  .entry-meta { position: static; flex-direction: row; align-items: center; gap: 10px; }
+  .entry-title { font-size: 0.98rem; }
+
   /* ── Boost: stack so the button is a full-width target ── */
   .boost-body { flex-direction: column; align-items: stretch; gap: 12px; }
   .boost-body .btn { width: 100%; padding: 12px 20px; }
@@ -1030,4 +1035,87 @@ hr { border: none; border-top: 1px solid var(--black); margin: 16px 0; }
   .scoreboard-cell { padding: 16px 8px 14px; }
   .scoreboard-value { font-size: 2.4rem; letter-spacing: -1.5px; }
   .scoreboard-head { font-size: 0.62rem; padding: 8px 12px; }
+}
+
+/* ── Changelog (/announcements) ────────────────── */
+/* A reading surface, so the measure is held short and the date rail carries
+   the chronology instead of a decorative timeline. */
+.changelog { list-style: none; border-top: 2px solid var(--black); }
+.entry {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 0 28px;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.entry:last-child { border-bottom: none; }
+.entry-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  position: sticky;
+  top: 20px;
+  align-self: start;
+}
+.entry-meta time {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--gray);
+  font-variant-numeric: tabular-nums;
+}
+.entry-body { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+.entry-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  text-wrap: balance;
+}
+.entry-summary { font-size: 0.88rem; line-height: 1.6; max-width: 60ch; }
+.entry-points {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  max-width: 62ch;
+}
+.entry-points li {
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--gray);
+  padding-left: 18px;
+  position: relative;
+}
+.entry-points li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 7px;
+  height: 1px;
+  background: var(--red-ink);
+}
+.entry-figure { width: 100%; margin: 4px 0 2px; }
+.entry-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--black);
+}
+.entry-figure figcaption {
+  font-size: 0.7rem;
+  color: var(--gray);
+  margin-top: 7px;
+  letter-spacing: 0.3px;
+}
+.entry-cta { margin-top: 2px; }
+.changelog-foot {
+  margin-top: 28px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+  font-size: 0.75rem;
+  color: var(--gray);
 }
