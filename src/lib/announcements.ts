@@ -32,7 +32,7 @@ export const ANNOUNCEMENTS: Announcement[] = [
       "Forget to submit picks? You keep the Boost. It's only spent on a race you actually played.",
     ],
     image: {
-      src: '/announcements/boosts.png',
+      src: '/media/boosts.png',
       alt: 'The Picks page showing an active Boost above the driver matchups',
       caption: 'The Boost sits under the deadline on the Picks page.',
     },
