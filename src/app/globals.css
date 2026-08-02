@@ -952,11 +952,6 @@ hr { border: none; border-top: 1px solid var(--black); margin: 16px 0; }
     border-bottom: none;
   }
 
-  /* ── Home: latest update stacks, so long headlines don't crush the label ── */
-  .home-latest { flex-wrap: wrap; gap: 8px 10px; padding: 14px 0 4px; }
-  .home-latest-title { font-size: 0.78rem; width: 100%; order: 3; }
-  .home-latest-more { margin-left: auto; }
-
   /* ── Scoring key: wrap on mobile ── */
   .home-scoring {
     flex-wrap: wrap;
@@ -1021,10 +1016,6 @@ hr { border: none; border-top: 1px solid var(--black); margin: 16px 0; }
   /* ── Alerts ── */
   .alert { font-size: 0.75rem; padding: 10px 12px; }
 
-  /* ── Changelog: date above the entry rather than beside it ── */
-  .entry { grid-template-columns: 1fr; gap: 10px; padding: 22px 0; }
-  .entry-meta { position: static; flex-direction: row; align-items: center; gap: 10px; }
-  .entry-title { font-size: 0.98rem; }
 
   /* ── Boost: stack so the button is a full-width target ── */
   .boost-body { flex-direction: column; align-items: stretch; gap: 12px; }
@@ -1155,3 +1146,31 @@ hr { border: none; border-top: 1px solid var(--black); margin: 16px 0; }
   color: var(--gray);
 }
 .home-latest:hover .home-latest-more { color: var(--red-ink); }
+
+/* ══════════════════════════════════════════════════
+   MOBILE — for components defined after the main
+   768px block above. Same breakpoint; it lives here
+   so these rules actually win the cascade.
+   ══════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Changelog: one column, date above the entry rather than beside it. */
+  .entry {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 22px 0;
+  }
+  .entry-meta {
+    position: static;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+  }
+  .entry-title { font-size: 0.98rem; }
+  .entry-summary { font-size: 0.85rem; }
+  .entry-points li { font-size: 0.8rem; }
+
+  /* Home: the headline gets its own line so it can't crush the label. */
+  .home-latest { flex-wrap: wrap; gap: 8px 10px; padding: 14px 0 4px; }
+  .home-latest-title { font-size: 0.78rem; width: 100%; order: 3; }
+  .home-latest-more { margin-left: auto; }
+}
