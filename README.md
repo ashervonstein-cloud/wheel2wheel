@@ -18,7 +18,8 @@ Score points, compete in leagues, win the championship.
 | Admin: enter results & auto-score | ✅ |
 | Weekly picks UI | ✅ |
 | Leaderboard | ✅ |
-| Double points weeks | ✅ |
+| Double points weeks (admin-set) | ✅ |
+| Boosts — players double a race of their choice | ✅ |
 | Sprint race support | ✅ |
 
 ---
@@ -126,6 +127,22 @@ Open your browser and go to: **http://localhost:3000**
 - 2 correct picks = 3 points  
 - 3 correct picks = 6 points
 - All correct on a double points week = doubled!
+
+### Boosts (player-controlled double points)
+
+Each team gets **2 Boosts per season**. A Boost doubles every point that team
+scores in one race of their choosing.
+
+- Spend one from the Picks page while selections are open.
+- It can be withdrawn any time before selections close.
+- Nobody else sees it until picks lock; after that everyone sees who boosted.
+- Boosts cannot be spent on a race you've marked as a Double Points Week —
+  the button is disabled with the reason shown.
+- If a team boosts a race but submits no picks, the Boost is returned when
+  results are processed rather than wasted on a zero.
+
+The limit lives in `src/lib/scoring.ts` as `BOOSTS_PER_SEASON`; change it there
+and every screen follows.
 
 ---
 

@@ -536,6 +536,38 @@ tr:hover td { background: var(--light); }
 .scoreboard.is-empty .scoreboard-body { grid-template-columns: 1fr; }
 .scoreboard.is-empty .scoreboard-value { font-size: 1.1rem; letter-spacing: 0; }
 
+/* ── Boost ─────────────────────────────────────── */
+/* A season-limited token, so the panel states the remaining count as plainly
+   as the countdown states the deadline. Red only once it is actually spent. */
+.boost { border: 1px solid var(--black); margin-bottom: 24px; }
+.boost.is-active { border-color: var(--red-ink); }
+.boost-head {
+  background: var(--black);
+  color: var(--white);
+  padding: 8px 16px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.boost.is-active .boost-head { background: var(--red-ink); }
+.boost-count { font-weight: 600; letter-spacing: 1px; opacity: 0.8; white-space: nowrap; }
+.boost-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 14px 16px;
+}
+.boost.is-active .boost-body { background: #fff6f4; }
+.boost-copy { font-size: 0.8rem; line-height: 1.55; color: var(--gray); max-width: 56ch; }
+.boost-copy strong { color: var(--black); font-weight: 700; }
+.boost-body .btn { flex-shrink: 0; }
+
 /* ── Submit bar ────────────────────────────────── */
 .submit-bar { display: flex; justify-content: flex-end; margin-top: 16px; }
 .submit-bar .btn { padding: 12px 32px; }
@@ -983,6 +1015,11 @@ hr { border: none; border-top: 1px solid var(--black); margin: 16px 0; }
 
   /* ── Alerts ── */
   .alert { font-size: 0.75rem; padding: 10px 12px; }
+
+  /* ── Boost: stack so the button is a full-width target ── */
+  .boost-body { flex-direction: column; align-items: stretch; gap: 12px; }
+  .boost-body .btn { width: 100%; padding: 12px 20px; }
+  .boost-head { font-size: 0.62rem; padding: 8px 12px; }
 
   /* ── Countdown ── */
   .countdown { flex-wrap: wrap; gap: 4px 10px; padding: 10px 12px; }

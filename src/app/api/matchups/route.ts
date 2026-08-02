@@ -54,7 +54,21 @@ export async function GET() {
       };
     });
 
-    return NextResponse.json({ race: { ...race, matchups: matchupsWithCounts } });
+    // Boosts are secret while selections are open and public once locked, so
+    // this branch only ever runs for CLOSED/COMPLETED races.
+    const boosts = await prisma.boost.findMany({
+      where: { raceId: race.id },
+      include: { team: { select: { name: true } } },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    return NextResponse.json({
+      race: {
+        ...race,
+        matchups: matchupsWithCounts,
+        boostedBy: boosts.map((b) => ({ teamId: b.teamId, teamName: b.team.name })),
+      },
+    });
   }
 
   return NextResponse.json({ race });

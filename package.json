@@ -10,7 +10,8 @@
     "db:studio": "prisma studio",
     "db:seed": "node prisma/seed.js",
     "db:seed:test": "node prisma/seed-test.js",
-    "dev:test": "next dev --port 3001"
+    "dev:test": "next dev --port 3001",
+    "test:scoring": "tsx src/lib/scoring.test.ts"
   },
   "dependencies": {
     "@next-auth/prisma-adapter": "^1.0.7",
@@ -35,6 +36,7 @@
     "postcss": "^8",
     "prisma": "^5.22.0",
     "tailwindcss": "^3.4.1",
+    "tsx": "^4.23.1",
     "typescript": "^5"
   }
 }

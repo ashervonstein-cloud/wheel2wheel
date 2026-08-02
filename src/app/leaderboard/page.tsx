@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { SCORING_RULES, BOOST_RULE } from '@/lib/scoring';
 
 function LeaderboardContent() {
   const { status } = useSession();
@@ -457,7 +458,8 @@ function LeaderboardContent() {
       </div>
 
       <div className="alert alert-info mt-16">
-        <strong>Scoring:</strong> 1 correct = 1pt · 2 correct = 3pts · 3 correct = 6pts · Season total determines champion
+        <span className="alert-label">Scoring</span>
+        {SCORING_RULES} · {BOOST_RULE} Season total determines the champion.
       </div>
     </div>
   );

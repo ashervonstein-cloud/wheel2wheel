@@ -56,12 +56,20 @@ export async function GET(req: NextRequest) {
   });
   const resultMap = Object.fromEntries(raceResults.map((r) => [r.raceId, r]));
 
+  const boostedRaceIds = new Set(
+    (await prisma.boost.findMany({
+      where: { teamId, raceId: { in: races.map((r) => r.id) } },
+      select: { raceId: true },
+    })).map((b) => b.raceId)
+  );
+
   const result = races.map((race) => ({
     id: race.id,
     name: race.name,
     round: race.round,
     country: race.country,
     isDoublePoints: race.isDoublePoints,
+    boosted: boostedRaceIds.has(race.id),
     result: resultMap[race.id] ?? null,
     matchups: race.matchups.map((matchup) => {
       const d1 = pickGroups.find((g) => g.matchupId === matchup.id && g.selection === 'driver1')?._count.id ?? 0;

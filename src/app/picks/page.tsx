@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { BOOSTS_PER_SEASON, SCORING_RULES, canBoostRace } from '@/lib/scoring';
 
 type Tone = 'success' | 'error';
 type Message = { text: string; tone: Tone } | null;
@@ -92,6 +93,8 @@ export default function PicksPage() {
   const [animated, setAnimated] = useState(false);
 
   // History accordion state
+  const [boost, setBoost] = useState<any>(null);
+  const [boostBusy, setBoostBusy] = useState(false);
   const [history, setHistory] = useState<any[]>([]);
   const [expandedRaces, setExpandedRaces] = useState<Set<string>>(new Set());
   const [animatedRaces, setAnimatedRaces] = useState<Set<string>>(new Set());
@@ -106,7 +109,7 @@ export default function PicksPage() {
   }, [selectedTeam, race]);
 
   useEffect(() => {
-    if (selectedTeam) fetchHistory();
+    if (selectedTeam) { fetchHistory(); fetchBoosts(); }
   }, [selectedTeam, race?.id]);
 
   // Trigger fill animation for current race visualizer
@@ -162,6 +165,44 @@ export default function PicksPage() {
       if (res.ok) setHistory(await res.json());
     } catch {
       setHistory([]);
+    }
+  };
+
+  const fetchBoosts = async () => {
+    if (!selectedTeam) return;
+    try {
+      const res = await fetch(`/api/boosts?teamId=${selectedTeam}`);
+      if (res.ok) setBoost(await res.json());
+    } catch {
+      setBoost(null); // the panel hides rather than guessing at a count
+    }
+  };
+
+  const toggleBoost = async (active: boolean) => {
+    if (!race || boostBusy) return;
+    setBoostBusy(true);
+    try {
+      const res = await fetch('/api/boosts', {
+        method: active ? 'DELETE' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ teamId: selectedTeam, raceId: race.id }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setBoost(data);
+        setMessage({
+          text: active
+            ? 'Boost removed. You can use it on another race.'
+            : `Boost active — everything you score at ${race.name} counts double.`,
+          tone: 'success',
+        });
+      } else {
+        setMessage({ text: humanize(data.error), tone: 'error' });
+      }
+    } catch {
+      setMessage({ text: "Couldn't reach the server. Try again.", tone: 'error' });
+    } finally {
+      setBoostBusy(false);
     }
   };
 
@@ -242,6 +283,10 @@ export default function PicksPage() {
   const hasTeam = teams.length > 0;
 
   // The current race's own scoreline, straight from the server's RaceResult.
+  const myBoostHere = !!(race && boost?.boosts?.some((b: any) => b.raceId === race.id));
+  const boostEligible = race ? canBoostRace(race) : { ok: false as boolean, reason: undefined };
+  const boostsLeft = boost?.remaining ?? 0;
+
   const currentEntry = race ? history.find((h: any) => h.id === race.id) : null;
   const currentResult = currentEntry?.result ?? null;
   const pastRaces = history.filter((h: any) => h.id !== race?.id);
@@ -364,7 +409,10 @@ export default function PicksPage() {
             <div className={`scoreboard${currentResult ? '' : ' is-empty'}`}>
               <div className="scoreboard-head">
                 <span>Your result · Round {race.round}</span>
-                {race.isDoublePoints && <span className="badge badge-solid">2× Week</span>}
+                <span style={{ display: 'flex', gap: 6 }}>
+                  {myBoostHere && <span className="badge badge-red">Boosted</span>}
+                  {race.isDoublePoints && <span className="badge badge-solid">2× Week</span>}
+                </span>
               </div>
               {currentResult ? (
                 <>
@@ -389,6 +437,7 @@ export default function PicksPage() {
                         ? <>Nothing landed this week. <strong>Next round resets it.</strong></>
                         : <>You called <strong>{currentResult.correct} of {currentResult.total}</strong> right.</>}
                     {race.isDoublePoints && currentResult.correct === currentResult.total && ' Doubled for the bonus week.'}
+                    {myBoostHere && currentResult.points > 0 && <> Your Boost doubled it.</>}
                   </p>
                 </>
               ) : (
@@ -409,6 +458,53 @@ export default function PicksPage() {
             </div>
           )}
 
+          {/* Boost. Secret while selections are open, public once locked. */}
+          {isOpen && boost && (
+            <div className={`boost${myBoostHere ? ' is-active' : ''}`}>
+              <div className="boost-head">
+                <span>{myBoostHere ? 'Boost active' : 'Boost'}</span>
+                <span className="boost-count">
+                  {boostsLeft} of {BOOSTS_PER_SEASON} left
+                </span>
+              </div>
+              <div className="boost-body">
+                <p className="boost-copy">
+                  {myBoostHere ? (
+                    <>Every point you score at <strong>{race.name}</strong> counts double.
+                       Nobody else sees this until selections close.</>
+                  ) : !boostEligible.ok ? (
+                    boostEligible.reason
+                  ) : boostsLeft === 0 ? (
+                    <>You&apos;ve used both Boosts this season. They reset next season.</>
+                  ) : (
+                    <>Double everything you score at <strong>{race.name}</strong>.
+                       Hidden from everyone until selections close, and you can take it
+                       back any time before then.</>
+                  )}
+                </p>
+                {boostEligible.ok && (boostsLeft > 0 || myBoostHere) && (
+                  <button
+                    className={`btn ${myBoostHere ? 'btn-outline' : 'btn-primary'}`}
+                    onClick={() => toggleBoost(myBoostHere)}
+                    disabled={boostBusy}
+                  >
+                    {boostBusy ? 'Saving...' : myBoostHere ? 'Remove Boost' : 'Use a Boost'}
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {showVisualizer && race.boostedBy && (
+            <div className="alert" style={{ marginBottom: 24 }}>
+              <span className="alert-label">Boosts</span>
+              {race.boostedBy.length === 0
+                ? 'Nobody boosted this race.'
+                : `${race.boostedBy.map((b: any) => b.teamName).join(', ')} ` +
+                  `${race.boostedBy.length === 1 ? 'doubled' : 'each doubled'} their score here.`}
+            </div>
+          )}
+
           {isClosed && (
             <div className="alert" style={{ marginBottom: 24 }}>
               <span className="alert-label">Locked</span>
@@ -419,7 +515,7 @@ export default function PicksPage() {
           {isOpen && (
             <div className="alert alert-info" style={{ marginBottom: 24 }}>
               <span className="alert-label">Scoring</span>
-              1 correct = 1pt · 2 correct = 3pts · 3 correct = 6pts
+              {SCORING_RULES}
               {race.isDoublePoints && ' · all correct on a 2× week = doubled'}
             </div>
           )}
@@ -517,6 +613,9 @@ export default function PicksPage() {
                     <span className="accordion-race-name">{pastRace.name}</span>
                     {pastRace.isDoublePoints && (
                       <span className="badge badge-red" style={{ fontSize: '0.55rem' }}>2×</span>
+                    )}
+                    {pastRace.boosted && (
+                      <span className="badge badge-red" style={{ fontSize: '0.55rem' }}>Boost</span>
                     )}
                   </div>
                   {result && (

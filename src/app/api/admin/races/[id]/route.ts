@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { calculatePoints, gradepicks } from '@/lib/scoring';
+import { calculatePoints, gradepicks, applyBoost } from '@/lib/scoring';
 
 function isAdmin(session: any) {
   return session?.user?.isAdmin === true;
@@ -75,6 +75,19 @@ export async function PATCH(
       winnerId: r.winnerId,
     }));
 
+    // Boosts are read here rather than baked in when spent, so re-running
+    // results (which admins can do on a COMPLETED race) stays correct.
+    const boosts = await prisma.boost.findMany({ where: { raceId: params.id } });
+    const boostedTeams = new Set(boosts.map((b) => b.teamId));
+
+    // A Boost spent on a race the team never picked in is returned rather than
+    // burnt on a zero — otherwise forgetting to submit silently costs a token.
+    const unusedBoosts = boosts.filter((b) => !picksByTeam.has(b.teamId));
+    if (unusedBoosts.length > 0) {
+      await prisma.boost.deleteMany({ where: { id: { in: unusedBoosts.map((b) => b.id) } } });
+      unusedBoosts.forEach((b) => boostedTeams.delete(b.teamId));
+    }
+
     const scoringPromises: Promise<any>[] = [];
 
     for (const [teamId, teamPicks] of picksByTeam) {
@@ -82,7 +95,11 @@ export async function PATCH(
         teamPicks.map((p) => ({ matchupId: p.matchupId, selection: p.selection })),
         winners
       );
-      const points = calculatePoints(correct, total, race.isDoublePoints);
+      const points = applyBoost(
+        calculatePoints(correct, total, race.isDoublePoints),
+        boostedTeams.has(teamId),
+        race.isDoublePoints
+      );
 
       // Mark each pick as correct/incorrect
       scoringPromises.push(
@@ -113,7 +130,12 @@ export async function PATCH(
       data: { status: 'COMPLETED' },
     });
 
-    return NextResponse.json({ success: true, message: 'Results processed and points awarded' });
+    return NextResponse.json({
+      success: true,
+      message: 'Results processed and points awarded',
+      boostsApplied: boostedTeams.size,
+      boostsReturned: unusedBoosts.length,
+    });
   }
 
   return NextResponse.json({ error: 'Nothing to update' }, { status: 400 });

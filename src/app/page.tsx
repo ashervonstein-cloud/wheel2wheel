@@ -1,5 +1,6 @@
 // src/app/page.tsx
 import Link from 'next/link';
+import { SCORING_RULES, BOOST_RULE } from '@/lib/scoring';
 
 export default function Home() {
   const features = [
@@ -58,7 +59,7 @@ export default function Home() {
 
       {/* Scoring key */}
       <div className="home-scoring">
-        {['1 correct = 1 pt', '2 correct = 3 pts', '3 correct = 6 pts', 'all correct on a 2\u00d7 week = doubled'].map(s => (
+        {[...SCORING_RULES.split(' · '), BOOST_RULE].map(s => (
           <span key={s} style={{ fontSize: '0.72rem', color: 'var(--gray)', letterSpacing: '0.5px' }}>{s}</span>
         ))}
       </div>
