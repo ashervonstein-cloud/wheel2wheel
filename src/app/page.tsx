@@ -1,8 +1,11 @@
 // src/app/page.tsx
 import Link from 'next/link';
 import { SCORING_RULES, BOOST_RULE } from '@/lib/scoring';
+import { ANNOUNCEMENTS } from '@/lib/announcements';
 
 export default function Home() {
+  const latest = [...ANNOUNCEMENTS].sort((a, b) => b.date.localeCompare(a.date))[0];
+
   const features = [
     {
       num: '01',
@@ -63,6 +66,21 @@ export default function Home() {
           <span key={s} style={{ fontSize: '0.72rem', color: 'var(--gray)', letterSpacing: '0.5px' }}>{s}</span>
         ))}
       </div>
+
+      {/* Latest update. Naming it beats a bare "What's new" — the headline is
+          the reason to click. */}
+      {latest && (
+        <Link href="/announcements" className="home-latest">
+          <span className="badge badge-red">New</span>
+          <span className="home-latest-title">{latest.title}</span>
+          <span className="home-latest-more">
+            All updates
+            <svg viewBox="0 0 10 10" width="9" height="9" aria-hidden="true">
+              <path d="M3 1L7 5L3 9" fill="none" stroke="currentColor" strokeWidth="1.6" />
+            </svg>
+          </span>
+        </Link>
+      )}
     </div>
   );
 }

@@ -952,6 +952,11 @@ hr { border: none; border-top: 1px solid var(--black); margin: 16px 0; }
     border-bottom: none;
   }
 
+  /* ── Home: latest update stacks, so long headlines don't crush the label ── */
+  .home-latest { flex-wrap: wrap; gap: 8px 10px; padding: 14px 0 4px; }
+  .home-latest-title { font-size: 0.78rem; width: 100%; order: 3; }
+  .home-latest-more { margin-left: auto; }
+
   /* ── Scoring key: wrap on mobile ── */
   .home-scoring {
     flex-wrap: wrap;
@@ -1119,3 +1124,34 @@ hr { border: none; border-top: 1px solid var(--black); margin: 16px 0; }
   font-size: 0.75rem;
   color: var(--gray);
 }
+
+/* ── Home: latest update ───────────────────────── */
+.home-latest {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid var(--black);
+  padding: 16px 0 4px;
+  text-decoration: none;
+  color: var(--black);
+}
+.home-latest-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  min-width: 0;
+}
+.home-latest:hover .home-latest-title { text-decoration: underline; }
+.home-latest-more {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--gray);
+}
+.home-latest:hover .home-latest-more { color: var(--red-ink); }
