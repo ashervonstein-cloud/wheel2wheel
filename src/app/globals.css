@@ -77,6 +77,78 @@ nav .nav-signout:hover { background: var(--white); color: var(--black); border-c
 nav .spacer { flex: 1; }
 nav .user-name { font-size: 0.72rem; color: var(--dim); }
 
+/* ── Nav clocks: track time / local time ───────── */
+/* Grid, not flex: the label column auto-sizes to its widest cell, so a long
+   circuit name and "LOCAL" can never collide with the digits next to them. */
+.nav-clocks {
+  display: grid;
+  grid-template-columns: max-content max-content;
+  row-gap: 3px;
+  column-gap: 8px;
+  align-items: center;
+  padding: 4px 0;
+}
+.clock-tz {
+  font-size: 0.56rem;
+  line-height: 1;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #666;
+  font-weight: 700;
+  text-align: right;
+  white-space: nowrap;
+}
+.clock-tz.is-track { color: #ff5540; }
+.clock-digits {
+  display: flex;
+  align-items: center;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--white);
+}
+.clock-sep {
+  color: #555;
+  padding: 0 1px;
+  font-weight: 500;
+  line-height: 1;
+}
+.digit-cell {
+  position: relative;
+  width: 0.62em;
+  height: 1.15em;
+  overflow: hidden;
+  display: inline-block;
+}
+.digit-track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  will-change: transform;
+}
+.digit-track span {
+  height: 1.15em;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.digit-track.sliding {
+  transition: transform 320ms cubic-bezier(0.32, 0.72, 0.35, 1);
+  transform: translateY(-1.15em);
+}
+@media (prefers-reduced-motion: reduce) {
+  .digit-track.sliding { transition: none; }
+}
+/* Mobile placement lives next to the hamburger — hidden on desktop, where
+   the clocks render inside .nav-desktop instead (see the mobile block below). */
+.nav-clocks-mobile { display: none; }
+
 /* ── Cards ─────────────────────────────────────── */
 .card {
   background: var(--white);
@@ -819,6 +891,10 @@ hr { border: none; border-top: 1px solid var(--black); margin: 16px 0; }
   /* ── Nav: hamburger + dropdown ── */
   .nav-desktop { display: none; }
   .nav-hamburger { display: block; }
+  .nav-clocks-mobile { display: block; }
+  .nav-clocks-mobile .nav-clocks { column-gap: 6px; }
+  .nav-clocks-mobile .clock-tz { font-size: 0.5rem; }
+  .nav-clocks-mobile .clock-digits { font-size: 0.72rem; }
   nav { padding: 0 16px; position: relative; }
 
   .nav-mobile-menu {

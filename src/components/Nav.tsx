@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { NavClocks } from './NavClocks';
 
 const LINKS = [
   { href: '/dashboard', label: 'Dashboard' },
@@ -80,6 +81,7 @@ export function Nav() {
         {session ? (
           <>
             <span className="user-name">{session.user?.name}</span>
+            <NavClocks />
             <button className="btn btn-outline btn-sm nav-signout" onClick={() => signOut()}>
               Sign Out
             </button>
@@ -90,6 +92,10 @@ export function Nav() {
             <Link href="/signup" className="btn btn-primary btn-sm">Sign Up</Link>
           </>
         )}
+      </div>
+
+      <div className="nav-clocks-mobile">
+        <NavClocks />
       </div>
 
       <button
