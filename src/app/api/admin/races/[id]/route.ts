@@ -22,7 +22,7 @@ export async function PATCH(
   }
 
   const body = await req.json();
-  const { status, results } = body;
+  const { status, results, selectionsOpenAt, selectionsCloseAt, raceDate } = body;
   // results = [{ matchupId: "...", winnerId: "driver1" | "driver2" }, ...]
 
   const race = await prisma.race.findUnique({
@@ -36,6 +36,19 @@ export async function PATCH(
     const updated = await prisma.race.update({
       where: { id: params.id },
       data: { status },
+    });
+    return NextResponse.json(updated);
+  }
+
+  // --- Editing the race weekend dates (e.g. fixing a wrong selectionsCloseAt) ---
+  if (selectionsOpenAt || selectionsCloseAt || raceDate) {
+    const data: Record<string, Date> = {};
+    if (selectionsOpenAt) data.selectionsOpenAt = new Date(selectionsOpenAt);
+    if (selectionsCloseAt) data.selectionsCloseAt = new Date(selectionsCloseAt);
+    if (raceDate) data.raceDate = new Date(raceDate);
+    const updated = await prisma.race.update({
+      where: { id: params.id },
+      data,
     });
     return NextResponse.json(updated);
   }

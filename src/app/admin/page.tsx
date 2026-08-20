@@ -62,6 +62,10 @@ export default function AdminPage() {
   const [resultsRaceId, setResultsRaceId] = useState('');
   const [winners, setWinners] = useState<Record<string, string>>({});
 
+  // Edit dates form
+  const [editDatesRaceId, setEditDatesRaceId] = useState('');
+  const [dateForm, setDateForm] = useState({ selectionsOpenAt: '', selectionsCloseAt: '', raceDate: '' });
+
   useEffect(() => {
     if (status === 'unauthenticated') router.push('/login');
     if (status === 'authenticated') {
@@ -126,7 +130,13 @@ export default function AdminPage() {
     const res = await fetch('/api/admin/races', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...raceForm, matchups }),
+      body: JSON.stringify({
+        ...raceForm,
+        selectionsOpenAt: fromLocalInput(raceForm.selectionsOpenAt),
+        selectionsCloseAt: fromLocalInput(raceForm.selectionsCloseAt),
+        raceDate: fromLocalInput(raceForm.raceDate),
+        matchups,
+      }),
     });
     const data = await res.json();
     if (res.ok) {
@@ -135,6 +145,34 @@ export default function AdminPage() {
       fetchRaces();
     } else {
       setMessage(data.error || 'Failed to create race');
+    }
+  };
+
+  const openEditDates = (race: any) => {
+    setEditDatesRaceId(race.id);
+    setDateForm({
+      selectionsOpenAt: toLocalInput(race.selectionsOpenAt),
+      selectionsCloseAt: toLocalInput(race.selectionsCloseAt),
+      raceDate: toLocalInput(race.raceDate),
+    });
+  };
+
+  const saveDates = async (raceId: string) => {
+    const res = await fetch(`/api/admin/races/${raceId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        selectionsOpenAt: fromLocalInput(dateForm.selectionsOpenAt),
+        selectionsCloseAt: fromLocalInput(dateForm.selectionsCloseAt),
+        raceDate: fromLocalInput(dateForm.raceDate),
+      }),
+    });
+    if (res.ok) {
+      setMessage('Race dates updated.');
+      setEditDatesRaceId('');
+      fetchRaces();
+    } else {
+      setMessage((await res.json()).error || 'Failed to update dates');
     }
   };
 
@@ -172,6 +210,9 @@ export default function AdminPage() {
     const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
     return local.toISOString().slice(0, 16);
   };
+
+  // Convert a datetime-local value (browser-local wall clock) → UTC ISO string
+  const fromLocalInput = (local: string) => new Date(local).toISOString();
 
   // Format a UTC ISO string for display
   const fmtUTC = (iso: string) => {
@@ -293,7 +334,34 @@ export default function AdminPage() {
                     Edit Results
                   </button>
                 )}
+                <button className="btn btn-sm btn-outline"
+                  onClick={() => editDatesRaceId === race.id ? setEditDatesRaceId('') : openEditDates(race)}>
+                  {editDatesRaceId === race.id ? 'Cancel' : 'Edit Dates'}
+                </button>
               </div>
+
+              {/* Edit dates panel */}
+              {editDatesRaceId === race.id && (
+                <div style={{ marginTop: 16, borderTop: '1px solid #000', paddingTop: 16 }}>
+                  <div className="form-group">
+                    <label>Selections Open</label>
+                    <input type="datetime-local" value={dateForm.selectionsOpenAt}
+                      onChange={e => setDateForm(f => ({ ...f, selectionsOpenAt: e.target.value }))} />
+                  </div>
+                  <div className="form-group">
+                    <label>Selections Close (start of qualifying)</label>
+                    <input type="datetime-local" value={dateForm.selectionsCloseAt}
+                      onChange={e => setDateForm(f => ({ ...f, selectionsCloseAt: e.target.value }))} />
+                  </div>
+                  <div className="form-group">
+                    <label>Race Date</label>
+                    <input type="datetime-local" value={dateForm.raceDate}
+                      onChange={e => setDateForm(f => ({ ...f, raceDate: e.target.value }))} />
+                  </div>
+                  <p className="text-sm text-gray" style={{ marginBottom: 12 }}>Times shown and entered in your browser's local timezone.</p>
+                  <button className="btn btn-primary" onClick={() => saveDates(race.id)}>Save Dates</button>
+                </div>
+              )}
 
               {/* Results entry panel */}
               {resultsRaceId === race.id && (race.status === 'CLOSED' || race.status === 'COMPLETED') && (
