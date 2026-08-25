@@ -1,9 +1,12 @@
+'use client';
 // src/app/page.tsx
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 import { SCORING_RULES, BOOST_RULE } from '@/lib/scoring';
 import { ANNOUNCEMENTS } from '@/lib/announcements';
 
 export default function Home() {
+  const { data: session } = useSession();
   const latest = [...ANNOUNCEMENTS].sort((a, b) => b.date.localeCompare(a.date))[0];
 
   const features = [
@@ -36,12 +39,20 @@ export default function Home() {
           Score points, join leagues, win the championship.
         </p>
         <div className="home-cta">
-          <Link href="/signup" className="btn btn-primary" style={{ padding: '10px 28px', fontSize: '0.8rem' }}>
-            Get Started
-          </Link>
-          <Link href="/login" className="btn btn-outline" style={{ padding: '10px 28px', fontSize: '0.8rem' }}>
-            Log In
-          </Link>
+          {session ? (
+            <Link href="/dashboard" className="btn btn-primary" style={{ padding: '10px 28px', fontSize: '0.8rem' }}>
+              Go to Dashboard
+            </Link>
+          ) : (
+            <>
+              <Link href="/signup" className="btn btn-primary" style={{ padding: '10px 28px', fontSize: '0.8rem' }}>
+                Get Started
+              </Link>
+              <Link href="/login" className="btn btn-outline" style={{ padding: '10px 28px', fontSize: '0.8rem' }}>
+                Log In
+              </Link>
+            </>
+          )}
         </div>
       </div>
 
