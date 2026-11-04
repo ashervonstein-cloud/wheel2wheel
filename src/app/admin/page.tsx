@@ -5,30 +5,45 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import type { CalendarRace } from '@/lib/f1calendar';
 
-// 2026 F1 driver lineup (source: formula1.com/en/drivers)
+// 2026 F1 driver lineup, full-time and reserve (source: formula1.com/en/drivers)
 const DRIVERS = [
   'Alexander Albon',
+  'Antonio Giovinazzi',
   'Arvid Lindblad',
+  'Ayumu Iwasa',
   'Carlos Sainz',
   'Charles Leclerc',
   'Esteban Ocon',
   'Fernando Alonso',
   'Franco Colapinto',
+  'Frederik Vesti',
   'Gabriel Bortoleto',
   'George Russell',
   'Isack Hadjar',
+  'Jack Doohan',
+  'Jak Crawford',
   'Kimi Antonelli',
+  'Kush Maini',
   'Lance Stroll',
   'Lando Norris',
+  'Leonardo Fornaroli',
   'Lewis Hamilton',
   'Liam Lawson',
+  'Luke Browning',
   'Max Verstappen',
   'Nico Hulkenberg',
   'Oliver Bearman',
   'Oscar Piastri',
+  "Pato O'Ward",
+  'Paul Aron',
   'Pierre Gasly',
+  'Rafael Camara',
+  'Ryo Hirakawa',
   'Sergio Perez',
+  'Stoffel Vandoorne',
   'Valtteri Bottas',
+  'Yuki Tsunoda',
+  'Zhou Guanyu',
 ];
 
 const emptyMatchup = (order: number) => ({
